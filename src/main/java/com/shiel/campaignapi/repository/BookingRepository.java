@@ -11,6 +11,7 @@ import com.shiel.campaignapi.entity.User;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 	 List<Booking> findByEventId(Event eventId);
+	 Optional<Booking> findByBookingId(Long bookingId);
 	 List<Booking> findByUserId(User userId);
 	    Optional<Booking> findByUserIdAndEventId(User userId, Event eventId);
 

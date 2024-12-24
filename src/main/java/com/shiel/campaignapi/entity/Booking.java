@@ -50,6 +50,9 @@ public class Booking {
 	@Column(name = "bookingdate")
 	private LocalDateTime bookingDate;
 
+	@Column(name = "paymentlink")
+	private String paymentLink;
+
 	@ManyToOne
 	@JoinColumn(name = "userid", referencedColumnName = "userid")
 	private User userId;
@@ -187,6 +190,18 @@ public class Booking {
 		return this;
 	}
 
+	public String getPaymentLink() {
+		return paymentLink;
+	}
+
+	public void setPaymentLink(String paymentLink) {
+		this.paymentLink = paymentLink;
+	}
+
+	public void setPaid(boolean isPaid) {
+		this.isPaid = isPaid;
+	}
+
 	public Booking() {
 	}
 
@@ -195,7 +210,8 @@ public class Booking {
 		return "Booking [bookingId=" + bookingId + ", dependentCount=" + dependentCount + ", paymentVia=" + paymentVia
 				+ ", totalAmount=" + totalAmount + ", amountPaid=" + amountPaid + ", isPaid=" + isPaid
 				+ ", bookingStatus=" + bookingStatus + ", bookingDate=" + bookingDate + ", userId=" + userId
-				+ ", eventId=" + eventId + ",createdAt=" + createdAt + ",updatedat=" + updatedAt + "]";
+				+ ", eventId=" + eventId + ",createdAt=" + createdAt + ",updatedAt=" + updatedAt + ",paymentLink="
+				+ paymentLink + "]";
 	}
 
 }

@@ -1,0 +1,36 @@
+2024-12-12 11:47:09 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 7.0.0.Final
+2024-12-12 11:47:09 [main] INFO  c.s.c.CampaignApiApplication - Starting CampaignApiApplication using Java 17.0.8.1 with PID 8216 (D:\project\camp-api\campaignapi\target\classes started by shibi in D:\project\camp-api\campaignapi)
+2024-12-12 11:47:09 [main] INFO  c.s.c.CampaignApiApplication - No active profile set, falling back to 1 default profile: "default"
+2024-12-12 11:47:10 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-12-12 11:47:10 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 50 ms. Found 8 JPA repository interfaces.
+2024-12-12 11:47:10 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2024-12-12 11:47:10 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-12-12 11:47:10 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2024-12-12 11:47:10 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.13]
+2024-12-12 11:47:10 [main] INFO  o.a.c.c.C.[.[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2024-12-12 11:47:10 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1018 ms
+2024-12-12 11:47:10 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-12-12 11:47:10 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.2.9.Final
+2024-12-12 11:47:10 [main] INFO  org.hibernate.cfg.Environment - HHH000406: Using bytecode reflection optimizer
+2024-12-12 11:47:10 [main] INFO  o.h.b.i.BytecodeProviderInitiator - HHH000021: Bytecode provider name : bytebuddy
+2024-12-12 11:47:11 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-12-12 11:47:11 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-12-12 11:47:11 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5c4714ef
+2024-12-12 11:47:11 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-12-12 11:47:11 [main] INFO  o.h.b.i.BytecodeProviderInitiator - HHH000021: Bytecode provider name : bytebuddy
+2024-12-12 11:47:12 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2024-12-12 11:47:12 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-12-12 11:47:12 [main] INFO  c.s.c.service.AuthenticationService - AuthenticationService initialized.
+2024-12-12 11:47:12 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@9742012, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@118d7e0e, org.springframework.security.web.context.SecurityContextHolderFilter@2a4a95c4, org.springframework.security.web.header.HeaderWriterFilter@9886ec3, org.springframework.security.web.authentication.logout.LogoutFilter@726882da, com.shiel.campaignapi.config.JwtAuthenticationFilter@4c231f62, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1f50fe84, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5e2ab1c, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@39ff4421, org.springframework.security.web.session.SessionManagementFilter@731bdcca, org.springframework.security.web.access.ExceptionTranslationFilter@36299b83, org.springframework.security.web.access.intercept.AuthorizationFilter@1611ce1c]
+2024-12-12 11:47:13 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2024-12-12 11:47:13 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path '/api'
+2024-12-12 11:47:13 [main] INFO  c.s.c.CampaignApiApplication - Started CampaignApiApplication in 3.773 seconds (process running for 4.386)
+2024-12-12 11:47:43 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[.[localhost].[/api] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-12-12 11:47:43 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2024-12-12 11:47:43 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
+2024-12-12 11:47:43 [http-nio-8080-exec-2] INFO  c.s.c.service.AuthenticationService - Attempting authentication for identifier: admin@gmail.com
+2024-12-12 11:47:43 [http-nio-8080-exec-2] INFO  c.s.c.service.AuthenticationService - Authentication successful for user with email: admin@gmail.com
+2024-12-12 11:49:30 [http-nio-8080-exec-5] INFO  c.s.c.service.AuthenticationService - Attempting authentication for identifier: admin@gmail.com
+2024-12-12 11:49:30 [http-nio-8080-exec-5] ERROR c.s.c.service.AuthenticationService - Authentication failed for user with email: admin@gmail.com
+2024-12-12 11:51:54 [http-nio-8080-exec-8] INFO  c.s.c.service.AuthenticationService - Attempting authentication for identifier: admind@gmail.com
+2024-12-12 11:51:54 [http-nio-8080-exec-8] ERROR c.s.c.service.AuthenticationService - User not found for identifier: admind@gmail.com

@@ -1,6 +1,8 @@
 package com.shiel.campaignapi.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,10 +20,13 @@ import com.shiel.campaignapi.service.JwtService;
 public class AuthenticationController {
 	private final JwtService jwtService;
 	private final AuthenticationService authenticationService;
+	private final UserDetailsService userDetailsService;
 
-	public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService) {
+	public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService,
+			UserDetailsService userDetailsService) {
 		this.jwtService = jwtService;
 		this.authenticationService = authenticationService;
+		this.userDetailsService = userDetailsService;
 	}
 
 	@PostMapping("/signup")
@@ -30,18 +35,18 @@ public class AuthenticationController {
 		try {
 			int age = signupUserDto.getAge();
 			if (age < 15 || age > 100) {
-				return ResponseEntity.badRequest().body("Error: Age must be between 15 and 100!");
+				return ResponseEntity.badRequest().body("Age must be between 15 and 100!");
 			}
 		} catch (NumberFormatException e) {
-			return ResponseEntity.badRequest().body("Error: Invalid age format!");
+			return ResponseEntity.badRequest().body("Invalid age format!");
 		}
 
-		if (!signupUserDto.getPhone().matches("^\\d{10}$")) {
+		if (!signupUserDto.getPhone().matches("^\\+?[1-9]\\d{8,11}$")) {
 			return ResponseEntity.badRequest().body("Error: Invalid phone number ");
 		}
 
 		if (authenticationService.existsByPhone(signupUserDto.getPhone())) {
-			return ResponseEntity.badRequest().body("Error: Phone Number is already taken!");
+			return ResponseEntity.badRequest().body("Phone Number is already taken!");
 		}
 		User registeredUser = authenticationService.signup(signupUserDto);
 
@@ -51,8 +56,8 @@ public class AuthenticationController {
 	@PostMapping("/signin")
 	public ResponseEntity<SigninResponse> authenticate(@RequestBody SigninUserDto signUserDto) {
 		User authenticatedUser = authenticationService.authenticate(signUserDto);
-
-		String jwtToken = jwtService.generateToken(authenticatedUser);
+		UserDetails userDetails = userDetailsService.loadUserByUsername(authenticatedUser.getEmail());
+		String jwtToken = jwtService.generateToken(userDetails,authenticatedUser );
 
 		SigninResponse loginResponse = new SigninResponse().setToken(jwtToken)
 				.setExpiresIn(jwtService.getExpirationTime());

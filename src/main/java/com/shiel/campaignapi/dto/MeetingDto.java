@@ -7,7 +7,8 @@ public class MeetingDto {
 	private String place;
 	private String description;
 	private String day;
-	
+	private String map;
+	private String image;
 
 	public MeetingDto() {
 		
@@ -51,5 +52,17 @@ public class MeetingDto {
 	public void setDay(String day) {
 		this.day = day;
 	}
-
+	public String getMap() {
+		return map;
+	}
+	public void setMap(String map) {
+		this.map = map;
+	}
+	public String getImage() {
+		return image;
+	}
+	public void setImage(String image) {
+		this.image = image;
+	}
+               
 }

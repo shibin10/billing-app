@@ -34,6 +34,13 @@ public class Meeting implements Serializable {
 
 	@Column(name = "day", nullable = false)
 	private String day;
+
+	@Column(name = "map")
+	private String map;
+
+	@Column(name = "image")
+	private String image;
+
 	@CreationTimestamp
 	@Column(updatable = false, name = "createdat")
 	private Date createdAt;
@@ -98,14 +105,32 @@ public class Meeting implements Serializable {
 		this.day = day;
 	}
 
+	public String getMap() {
+		return map;
+	}
+
+	public void setMap(String map) {
+		this.map = map;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
 	public Meeting(Long meetingId, String title, String place, String description, String day, Date createdAt,
-			Date updatedAt) {
+			Date updatedAt, String map, String image) {
 
 		this.meetingId = meetingId;
 		this.title = title;
 		this.place = place;
 		this.description = description;
 		this.day = day;
+		this.map = map;
+		this.image = image;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}

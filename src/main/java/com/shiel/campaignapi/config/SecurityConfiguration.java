@@ -27,19 +27,18 @@ public class SecurityConfiguration {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests().requestMatchers("/auth/**").hasRole("APPLICATION")
+		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests()
+				.requestMatchers("/auth/**", "/events/all", "/meetings/all", "/meetings/{meetingId}",
+						"/events/{eventId}", "/zoom-meetings/all", "/zoom-meetings/{meetingId}")
+				.permitAll()
 				.requestMatchers("/events/add", "/events/update/*", "/events/delete/*", "/meetings/add",
 						"/meetings/update/*", "/meetings/delete/*", "/booking/all", "/users/all",
-						"booking/event/{eventId}", "booking/user/{userId}", "booking/delete/{bookingId}",
-						"/zoom-meetings/add","/zoom-meetings/delete/*","/zoom-meetings/update/*","/roles/**")
+						"booking/event/{eventId}", "booking/delete/{bookingId}", "/zoom-meetings/add",
+						"/zoom-meetings/delete/*", "/zoom-meetings/update/*", "/roles/**","/country/add")
 				.hasRole("ADMIN")
 
-				.requestMatchers("/events/all", "/meetings/all", "/meetings/{meetingId}", "/events/{eventId}",
-						"/zoom-meetings/all", "/zoom-meetings/{meetingId}")
-				.hasAnyRole("APPLICATION", "USER", "ADMIN")
-
-				.requestMatchers(
-						"/booking/add", "/booking/{id}	", "/booking/update/*", "/users/update/*", "/users/{userId}","/users/delete/*")
+				.requestMatchers("/booking/add", "/booking/{bookingId}", "booking/user/{userId}", "/booking/update/*",
+						"/users/update/*", "/users/{userId}", "/users/delete/*","/country/all")
 				.hasAnyRole("USER", "ADMIN").and()
 
 				.anonymous(anonymous -> anonymous

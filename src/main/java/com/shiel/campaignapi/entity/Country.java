@@ -15,7 +15,7 @@ public class Country {
 	private int countryId;
 
 	@Column(name = "countrycode", nullable = false)
-	private String contryCode;
+	private String countryCode;
 
 	@Column(name = "country", nullable = false)
 	private String country;
@@ -28,12 +28,12 @@ public class Country {
 		this.countryId = countryId;
 	}
 
-	public String getContryCode() {
-		return contryCode;
+	public String getCountryCode() {
+		return countryCode;
 	}
 
-	public void setContryCode(String contryCode) {
-		this.contryCode = contryCode;
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
 	}
 
 	public String getCountry() {
@@ -45,12 +45,19 @@ public class Country {
 	}
 
 	public Country() {
+	}
 
+	
+	public Country(int countryId, String countryCode, String country) {
+		super();
+		this.countryId = countryId;
+		this.countryCode = countryCode;
+		this.country = country;
 	}
 
 	@Override
 	public String toString() {
-		return "Country [countryId=" + countryId + ", contryCode=" + contryCode + ", country=" + country + "]";
+		return "Country [countryId=" + countryId + ", countryCode=" + countryCode + ", country=" + country + "]";
 	}
 
 }

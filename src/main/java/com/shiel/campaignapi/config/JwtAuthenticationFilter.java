@@ -25,6 +25,7 @@ import io.jsonwebtoken.Claims;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -55,29 +56,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		try {
 			final String jwt = authHeader.substring(7);
+			final Claims claims = jwtService.extractAllClaims(jwt);
+			final Long userId = claims.get("userId", Long.class);
 			final String email = jwtService.extractUsername(jwt);
 
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-			if (email != null && authentication == null) {			
+			if (email != null && authentication == null) {
 				UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
 				if (jwtService.isTokenValid(jwt, userDetails)) {
 
 					User user = userRepository.findByEmail(email)
 							.orElseThrow(() -> new RuntimeException("User not found: " + email));
 
-					List<String> roles = user.getRoles().stream().map(Role::getRoleName) 
-							.collect(Collectors.toList());
+					List<String> roles = user.getRoles().stream().map(Role::getRoleName).collect(Collectors.toList());
 
 					// Convert roles to GrantedAuthority
-					var authorities = roles.stream().map(SimpleGrantedAuthority::new) 
-							.collect(Collectors.toList());
+					var authorities = roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 
 					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
 							null, authorities
 
 					);
-					authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+					authToken.setDetails(Map.of("userId", userId, "requestDetails",
+							new WebAuthenticationDetailsSource().buildDetails(request)));
 					SecurityContextHolder.getContext().setAuthentication(authToken);
 				}
 			}

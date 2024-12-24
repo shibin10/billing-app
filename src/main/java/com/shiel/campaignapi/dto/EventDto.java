@@ -15,6 +15,8 @@ public class EventDto implements Serializable {
 	private String title;
 	private String description;
 	private String place;
+	private String map;
+	private String image;
 	private int seats;
 
 	@DecimalMin(value = "1.00", inclusive = true, message = "Amount must be greater than or equal to 1.00")
@@ -119,6 +121,23 @@ public class EventDto implements Serializable {
 	public EventDto setStatus(Event.EventStatus status) {
 		this.status = status;
 		return this;
+	}
+
+	
+	public String getMap() {
+		return map;
+	}
+
+	public void setMap(String map) {
+		this.map = map;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
 	}
 
 	public EventDto() {

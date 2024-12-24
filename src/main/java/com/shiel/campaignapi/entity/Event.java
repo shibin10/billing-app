@@ -52,6 +52,12 @@ public class Event implements Serializable {
 
 	@Column(name = "seatsbooked", nullable = true)
 	private int seatsBooked;
+	
+	@Column(name = "map")
+	private String map;
+
+	@Column(name = "image")
+	private String image;
 
 	@CreationTimestamp
 	@Column(updatable = false, name = "createdat")
@@ -155,6 +161,22 @@ public class Event implements Serializable {
 	}
 	
 
+	public String getMap() {
+		return map;
+	}
+
+	public void setMap(String map) {
+		this.map = map;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
 	public Date getCreatedAt() {
 		return createdAt;
 	}
@@ -172,7 +194,7 @@ public class Event implements Serializable {
 	}
 
 	public Event(Long eventId, String title, String description, Date startDate, Date endDate, String place,
-			BigDecimal adultAmount, BigDecimal childAmount, int seats, int seatsBooked, EventStatus status) {
+			BigDecimal adultAmount, BigDecimal childAmount, int seats, int seatsBooked, EventStatus status,String map,String image) {
 		this.eventId = eventId;
 		this.title = title;
 		this.description = description;
@@ -184,6 +206,8 @@ public class Event implements Serializable {
 		this.seats = seats;
 		this.seatsBooked = seatsBooked;
 		this.status = status;
+		this.map = map;
+		this.image = image;
 	}
 
 	public enum EventStatus {
