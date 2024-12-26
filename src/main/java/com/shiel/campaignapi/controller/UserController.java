@@ -153,7 +153,8 @@ public class UserController {
 	    SimpleMailMessage message = new SimpleMailMessage();
 	    message.setTo(user.getEmail());
 	    message.setSubject("Password Reset Request");
-	    message.setText("Use this token to reset your password: " + resetToken.getToken());
+	    message.setText("Use this OTP to reset your password:\n\n" + resetToken.getToken());
+
 	    mailSender.send(message);
 
 	    return ResponseEntity.ok("Password reset email sent");

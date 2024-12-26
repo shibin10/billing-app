@@ -29,16 +29,17 @@ public class SecurityConfiguration {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests()
 				.requestMatchers("/auth/**", "/events/all", "/meetings/all", "/meetings/{meetingId}",
-						"/events/{eventId}", "/zoom-meetings/all", "/zoom-meetings/{meetingId}")
+						"/events/{eventId}", "/zoom-meetings/all", "/zoom-meetings/{meetingId}",
+						"/users/forgot-password", "/users/reset-password", "/country/all")
 				.permitAll()
 				.requestMatchers("/events/add", "/events/update/*", "/events/delete/*", "/meetings/add",
 						"/meetings/update/*", "/meetings/delete/*", "/booking/all", "/users/all",
 						"booking/event/{eventId}", "booking/delete/{bookingId}", "/zoom-meetings/add",
-						"/zoom-meetings/delete/*", "/zoom-meetings/update/*", "/roles/**","/country/add")
+						"/zoom-meetings/delete/*", "/zoom-meetings/update/*", "/roles/**", "/country/add")
 				.hasRole("ADMIN")
 
 				.requestMatchers("/booking/add", "/booking/{bookingId}", "booking/user/{userId}", "/booking/update/*",
-						"/users/update/*", "/users/{userId}", "/users/delete/*","/country/all")
+						"/users/update/*", "/users/{userId}", "/users/delete/*")
 				.hasAnyRole("USER", "ADMIN").and()
 
 				.anonymous(anonymous -> anonymous

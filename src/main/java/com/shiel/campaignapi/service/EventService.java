@@ -127,7 +127,7 @@ public class EventService {
 		eventDto.setEndDate(event.getEndDate());
 		eventDto.setSeats(event.getSeats());
 		eventDto.setSeatsBooked(event.getSeatsBooked());
-		eventDto.setStatus(Event.EventStatus.CREATED);
+		eventDto.setStatus(event.getStatus());
 		eventDto.setMap(event.getMap());
 		eventDto.setImage(event.getImage());
 		return eventDto;

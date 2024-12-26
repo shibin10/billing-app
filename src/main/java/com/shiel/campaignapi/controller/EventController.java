@@ -77,13 +77,13 @@ public class EventController {
 		}
 
 		if (!eventId.equals(eventDto.getEventId())) {
-			return ResponseEntity.badRequest().body("Invalid Meeting ID in the request");
+			return ResponseEntity.badRequest().body("Invalid Event ID in the request");
 
 		}
 
 		if (!eventService.isValidDate(eventDto.getStartDate(), eventDto.getEndDate())) {
 			return ResponseEntity.badRequest()
-					.body("Error: start date must be before end date and both dates must be in the future");
+					.body("start date must be before end date and both dates must be in the future");
 		}
 
 		Event event = eventService.updateEvent(eventDto);

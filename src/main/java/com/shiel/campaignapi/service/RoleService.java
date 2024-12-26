@@ -50,7 +50,7 @@ public class RoleService {
 
 				return roleRepository.save(role);
 			} else {
-				throw new RuntimeException("Meeting not found with id " + roleDto.getRoleId());
+				throw new RuntimeException("Role not found with id " + roleDto.getRoleId());
 			}
 		} catch (Exception e) {
 			return null;

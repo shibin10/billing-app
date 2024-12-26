@@ -26,6 +26,9 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+    	if (roleRepository.count() > 0) {
+	        return;
+	    }
     	Map<String, String> roles = Map.of(
     	        "ROLE_ADMIN", "Administrator with full access",
     	        "ROLE_USER", "Regular user with limited access",
@@ -44,6 +47,7 @@ public class DataSeeder implements CommandLineRunner {
                 roleRepository.save(role);
             }
         }
+    	
     	
     	  if (countryRepository.count() > 0) {
     	        return;
@@ -134,6 +138,8 @@ public class DataSeeder implements CommandLineRunner {
                 countryRepository.save(countries1);
             }
         }
+    	
+    	
     
         System.out.println("Roles and Countries seeded successfully!");
     }
