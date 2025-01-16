@@ -72,7 +72,7 @@ public class MeetingController {
 	}
 
 	@DeleteMapping("/delete/{meetingId}")
-	public ResponseEntity<?> deleteMeetingById(@PathVariable("id") @Valid Long meetingId) {
+	public ResponseEntity<?> deleteMeetingById(@PathVariable("meetingId") @Valid Long meetingId) {
 
 		if (meetingId == null) {
 			return ResponseEntity.badRequest().body("Meeting Id cannot be Null");

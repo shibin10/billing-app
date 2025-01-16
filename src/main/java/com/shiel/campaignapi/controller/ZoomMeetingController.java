@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shiel.campaignapi.dto.ZoomMeetingDto;
@@ -29,7 +30,7 @@ public class ZoomMeetingController {
 	@PostMapping("/add")
 	public ResponseEntity<?> addMeeting(@RequestBody ZoomMeetingDto zoomDto) {
 		if (zoomMeetingService.existsByPlace(zoomDto.getPlace())) {
-			return ResponseEntity.badRequest().body("Error: Title already exists");
+			return ResponseEntity.badRequest().body("Title already exists");
 		}
 		ZoomMeetings meeting = zoomMeetingService.saveMeeting(zoomDto);
 		return ResponseEntity.ok("Zoom meeting registered successfully with ID: " + meeting.getMeetingId());
@@ -43,6 +44,11 @@ public class ZoomMeetingController {
 		}
 		return ResponseEntity.ok(meetings);
 	}
+
+    @GetMapping("/zoom-meeting-time")
+    public String getZoomMeetingTime(@RequestParam String utcDateTime, @RequestParam String userTimeZone) {
+        return zoomMeetingService.getLocalMeetingTime(utcDateTime, userTimeZone);
+    }
 
 	@PostMapping("/update/{meetingId}")
 	public ResponseEntity<?> updateMeeting(@PathVariable("meetingId") Integer meetingId,

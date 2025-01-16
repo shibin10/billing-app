@@ -6,7 +6,6 @@ import java.util.Date;
 
 import com.shiel.campaignapi.entity.Event;
 
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 
 public class EventDto implements Serializable {
@@ -19,11 +18,9 @@ public class EventDto implements Serializable {
 	private String image;
 	private int seats;
 
-	@DecimalMin(value = "1.00", inclusive = true, message = "Amount must be greater than or equal to 1.00")
 	@Digits(integer = 10, fraction = 2, message = "Amount has exceeded the allowed precision")
 	private BigDecimal adultAmount;
 
-	@DecimalMin(value = "1.00", inclusive = true, message = "Amount must be greater than or equal to 1.00")
 	@Digits(integer = 10, fraction = 2, message = "Amount has exceeded the allowed precision")
 	private BigDecimal childAmount;
 

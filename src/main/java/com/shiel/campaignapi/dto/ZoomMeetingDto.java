@@ -10,6 +10,8 @@ public class ZoomMeetingDto {
 	private String zoomId;
 	private String zoomLink;
 	private LocalTime time;
+	private String timeZone;
+	private String district;
 	public Integer getMeetingId() {
 		return meetingId;
 	}
@@ -52,6 +54,20 @@ public class ZoomMeetingDto {
 	}
 	public void setTime(LocalTime time) {
 		this.time = time;
+	}
+	
+	
+	public String getTimeZone() {
+		return timeZone;
+	}
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
+	}
+	public String getDistrict() {
+		return district;
+	}
+	public void setDistrict(String district) {
+		this.district = district;
 	}
 	public ZoomMeetingDto() {
 		

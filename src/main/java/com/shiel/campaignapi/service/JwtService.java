@@ -45,6 +45,7 @@ public class JwtService {
 				.collect(Collectors.toList()));
 
 		extraClaims.put("userId", user.getUserId());
+		extraClaims.put("fullName", user.getFullName());
 		return buildToken(extraClaims, userDetails, jwtExpiration);
 	}
 
@@ -68,6 +69,10 @@ public class JwtService {
 	public Long extractUserId(String token) {
 		Claims claims = extractAllClaims(token);
 		return claims.get("userId", Long.class);
+	}
+	public String extractFullName(String token) {
+		Claims claims = extractAllClaims(token);
+		return claims.get("fullName", String.class);
 	}
 
 	private boolean isTokenExpired(String token) {

@@ -12,7 +12,7 @@ public class Country {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "countryid", nullable = false)
-	private int countryId;
+	private Integer countryId;
 
 	@Column(name = "countrycode", nullable = false)
 	private String countryCode;
@@ -20,11 +20,11 @@ public class Country {
 	@Column(name = "country", nullable = false)
 	private String country;
 
-	public int getCountryId() {
+	public Integer getCountryId() {
 		return countryId;
 	}
 
-	public void setCountryId(int countryId) {
+	public void setCountryId(Integer countryId) {
 		this.countryId = countryId;
 	}
 
@@ -48,7 +48,7 @@ public class Country {
 	}
 
 	
-	public Country(int countryId, String countryCode, String country) {
+	public Country(Integer countryId, String countryCode, String country) {
 		super();
 		this.countryId = countryId;
 		this.countryCode = countryCode;

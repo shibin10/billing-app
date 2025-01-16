@@ -10,6 +10,10 @@ import com.shiel.campaignapi.repository.ZoomMeetingRepository;
 
 import jakarta.validation.Valid;
 
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,9 +24,12 @@ public class ZoomMeetingService {
 	@Autowired
 	private final ZoomMeetingRepository zoomMeetingRepository;
 	private static final Logger logger = LoggerFactory.getLogger(ZoomMeetingService.class);
+	private final MeetingSchedulerService meetingSchedulerService;
 
-	public ZoomMeetingService(ZoomMeetingRepository zoomMeetingRepository) {
+	public ZoomMeetingService(ZoomMeetingRepository zoomMeetingRepository,
+			MeetingSchedulerService meetingSchedulerService) {
 		this.zoomMeetingRepository = zoomMeetingRepository;
+		this.meetingSchedulerService = meetingSchedulerService;
 	}
 
 	public boolean existsByPlace(String place) {
@@ -32,17 +39,34 @@ public class ZoomMeetingService {
 	public ZoomMeetings saveMeeting(ZoomMeetingDto zoomDto) {
 		logger.info("Saving Zoom Meetings");
 		try {
+			// Validate timezone
+			String timeZone = zoomDto.getTimeZone();
+			ZoneId zoneId = ZoneId.of(timeZone);
+			 ZonedDateTime now = ZonedDateTime.now(zoneId);
+			// Parse the meeting time from the DTO
+			LocalTime meetingTime = zoomDto.getTime();
+
+			// Delegate to MeetingSchedulerService to calculate next meeting time
+			ZonedDateTime nextMeeting = meetingSchedulerService.getNextMeetingTime(zoomDto.getDay(), meetingTime,
+					timeZone);
+
+			logger.info("Next meeting scheduled for: {}", nextMeeting);
+
+			// Create and save ZoomMeeting entity without storing next meeting time
 			ZoomMeetings zoomMeeting = new ZoomMeetings();
 			zoomMeeting.setPlace(zoomDto.getPlace());
 			zoomMeeting.setDescription(zoomDto.getDescription());
 			zoomMeeting.setDay(zoomDto.getDay());
 			zoomMeeting.setZoomId(zoomDto.getZoomId());
 			zoomMeeting.setZoomLink(zoomDto.getZoomLink());
-			zoomMeeting.setTime(zoomDto.getTime());
+			zoomMeeting.setTime(meetingTime);
+			zoomMeeting.setTimeZone(timeZone);
+			zoomMeeting.setDistrict(zoomDto.getDistrict());
+
 			return zoomMeetingRepository.save(zoomMeeting);
 		} catch (Exception e) {
-			logger.error("Error occurred while Saving Zoom meeting", e);
-			throw new RuntimeException("Failed to save zoom meeting", e);
+			logger.error("Error occurred while saving Zoom meeting", e);
+			throw new RuntimeException("Failed to save Zoom meeting", e);
 		}
 	}
 
@@ -63,15 +87,17 @@ public class ZoomMeetingService {
 				zoomMeeting.setZoomId(zoomMeetingDto.getZoomId());
 				zoomMeeting.setZoomLink(zoomMeetingDto.getZoomLink());
 				zoomMeeting.setTime(zoomMeetingDto.getTime());
+				zoomMeeting.setTimeZone(zoomMeetingDto.getTimeZone());
+				zoomMeeting.setDistrict(zoomMeetingDto.getDistrict());
 				return zoomMeetingRepository.save(zoomMeeting);
 			} else {
 				throw new RuntimeException("Meeting not found with id " + zoomMeetingDto.getMeetingId());
 			}
 
-		 } catch (Exception e) {
-	            logger.error("Error occurred while update zoom meeting", e);
-	            throw new RuntimeException("Failed to update zoom meeting", e);
-	        }
+		} catch (Exception e) {
+			logger.error("Error occurred while update zoom meeting", e);
+			throw new RuntimeException("Failed to update zoom meeting", e);
+		}
 	}
 
 	public ZoomMeetingDto findZoomMeetingById(@Valid Integer meetingId) {
@@ -104,7 +130,16 @@ public class ZoomMeetingService {
 		zoomMeetingDto.setZoomId(zoomMeeting.getZoomId());
 		zoomMeetingDto.setZoomLink(zoomMeeting.getZoomLink());
 		zoomMeetingDto.setTime(zoomMeeting.getTime());
+		zoomMeetingDto.setTimeZone(zoomMeeting.getTimeZone());
+		zoomMeetingDto.setDistrict(zoomMeeting.getDistrict());
 		return zoomMeetingDto;
 
 	}
+
+	public String getLocalMeetingTime(String utcDateTime, String userTimeZone) {
+		ZonedDateTime zonedUtc = ZonedDateTime.parse(utcDateTime, DateTimeFormatter.ISO_ZONED_DATE_TIME);
+		ZonedDateTime localDateTime = zonedUtc.withZoneSameInstant(ZoneId.of(userTimeZone));
+		return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
+	}
+
 }

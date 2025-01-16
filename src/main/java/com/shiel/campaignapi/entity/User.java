@@ -11,15 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 
 @Table(name = "user")
 @Entity
@@ -44,9 +36,6 @@ public class User implements UserDetails {
 	private String place;
 
 	@Column(nullable = false)
-	private String phoneExt;
-
-	@Column(nullable = false)
 	private String phone;
 
 	@Column(nullable = false)
@@ -68,6 +57,10 @@ public class User implements UserDetails {
 
 	@Column
 	private LocalDateTime deletedAt;
+
+	@ManyToOne
+	@JoinColumn(name = "countryId", referencedColumnName = "countryId", nullable = true)
+	private Country countryId;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -172,17 +165,18 @@ public class User implements UserDetails {
 		return this;
 	}
 
-	public String getPhoneExt() {
-		return phoneExt;
-	}
-
-	public User setPhoneExt(String phoneExt) {
-		this.phoneExt = phoneExt;
-		return this;
-	}
 
 	public String getPhone() {
 		return phone;
+	}
+
+	public Country getCountryId() {
+		return countryId;
+	}
+
+	public User setCountryId(Country countryId) {
+		this.countryId = countryId;
+		return this;
 	}
 
 	public User setPhone(String phone) {
@@ -216,7 +210,6 @@ public class User implements UserDetails {
 		this.roles = roles;
 	}
 
-	
 	public UserStatus getStatus() {
 		return status;
 	}
@@ -224,7 +217,7 @@ public class User implements UserDetails {
 	public User setStatus(UserStatus status) {
 		this.status = status;
 		return this;
-		
+
 	}
 
 	@Override
@@ -235,7 +228,7 @@ public class User implements UserDetails {
 	@Override
 	public String toString() {
 		return "User [userId=" + userId + ", fullName=" + fullName + ", email=" + email + ", password=" + password
-				+ ", place=" + place + ", phoneExt=" + phoneExt + ", phone=" + phone + ", age=" + age + ", gender="
+				+ ", place=" + place + ", countryId=" + countryId + ", phone=" + phone + ", age=" + age + ", gender="
 				+ gender + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", deltedAt=" + deletedAt
 				+ "roles=" + roles + ",status=" + status + "]";
 	}

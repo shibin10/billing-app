@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.shiel.campaignapi.entity.Country;
 
-public interface CountryRepository extends JpaRepository<Country,Long>{
+public interface CountryRepository extends JpaRepository<Country,String>{
 	 boolean existsByCountry(String country);
 
 	Optional<Country> findByCountryCode(String countryCode);

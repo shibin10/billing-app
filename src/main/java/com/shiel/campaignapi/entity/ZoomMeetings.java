@@ -42,6 +42,12 @@ public class ZoomMeetings implements Serializable {
 	@Column(name = "time", nullable = false)
 	private LocalTime time;
 
+	@Column(name = "time_zone", nullable = false)
+	private String timeZone;
+
+	@Column(name = "district", nullable = true)
+	private String district;
+
 	@CreationTimestamp
 	@Column(updatable = false, name = "createdat")
 	private Date createdAt;
@@ -126,10 +132,26 @@ public class ZoomMeetings implements Serializable {
 		this.time = time;
 	}
 
+	
+	public String getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
+	}
+
+	public String getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(String district) {
+		this.district = district;
+	}
 
 
 	public ZoomMeetings(Integer meetingId, String place, String description, String day, String zoomId, String zoomLink,
-			LocalTime time, Date createdAt, Date updatedAt) {
+			LocalTime time, String timeZone, String district, Date createdAt, Date updatedAt) {
 		super();
 		this.meetingId = meetingId;
 		this.place = place;
@@ -138,6 +160,8 @@ public class ZoomMeetings implements Serializable {
 		this.zoomId = zoomId;
 		this.zoomLink = zoomLink;
 		this.time = time;
+		this.timeZone = timeZone;
+		this.district = district;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}

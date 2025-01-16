@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shiel.campaignapi.dto.BookingDto;
 import com.shiel.campaignapi.entity.Booking;
 import com.shiel.campaignapi.entity.Event;
 import com.shiel.campaignapi.entity.User;
+import com.shiel.campaignapi.exception.UserIllegalArgumentException;
 import com.shiel.campaignapi.service.BookingService;
 
 import jakarta.validation.Valid;
@@ -30,16 +32,13 @@ public class BookingController {
 
 	@PostMapping("/add")
 	public ResponseEntity<?> addBooking(@RequestBody BookingDto bookingDto) {
-	    try {
-	        Booking booking = bookingService.saveBooking(bookingDto);
-	        return ResponseEntity.ok(booking);
-	    } catch (RuntimeException e) {
-	        e.printStackTrace(); // Log the error for debugging
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body("Error occurred: " + e.getMessage());
-	    }
+		   try {
+		        Booking booking = bookingService.saveBooking(bookingDto);
+		        return ResponseEntity.ok(booking);
+		    } catch (UserIllegalArgumentException e) {
+		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		    }
 	}
-
 
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllBooking() {
@@ -75,33 +74,48 @@ public class BookingController {
 			return ResponseEntity.ok().body(updateBooking);
 		}
 	}
-	
-	 @GetMapping("/event/{eventId}")
-	    public ResponseEntity<?> getBookingsByEventId(@PathVariable Event eventId) {
-	        List<BookingDto> bookings = bookingService.findBookingsByEventId(eventId);
-	        if (bookings.isEmpty()) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No bookings found for the specified event");
-	        } else {
-	            return ResponseEntity.ok(bookings);
-	        }
+
+	@GetMapping("/event/{eventId}")
+	public ResponseEntity<?> getBookingsByEventId(@PathVariable Event eventId) {
+		List<BookingDto> bookings = bookingService.findBookingsByEventId(eventId);
+		if (bookings.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No bookings found for the specified event");
+		} else {
+			return ResponseEntity.ok(bookings);
+		}
+	}
+
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<?> getBookingsByUserId(@PathVariable User userId) {
+		List<BookingDto> bookings = bookingService.findBookingsByUserId(userId);
+		if (bookings.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No bookings found for the specified User");
+		} else {
+			return ResponseEntity.ok(bookings);
+		}
+	}
+
+	@DeleteMapping("/delete/{bookingId}")
+	public ResponseEntity<?> cancelBooking(@PathVariable Long bookingId) {
+		try {
+			Booking updatedBooking = bookingService.cancelBooking(bookingId);
+			return ResponseEntity.ok(updatedBooking);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
+	}
+
+	@GetMapping("/isUserBooked")
+	public ResponseEntity<Boolean> isUserBookedForEvent(
+	        @RequestParam User userId,
+	        @RequestParam Event eventId) {
+	    try {
+	        boolean isBooked = bookingService.isUserBookedForEvent(userId, eventId);
+	        return ResponseEntity.ok(isBooked);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(false);
 	    }
-	 @GetMapping("/user/{userId}")
-	    public ResponseEntity<?> getBookingsByUserId(@PathVariable User userId) {
-	        List<BookingDto> bookings = bookingService.findBookingsByUserId(userId);
-	        if (bookings.isEmpty()) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No bookings found for the specified User");
-	        } else {
-	            return ResponseEntity.ok(bookings);
-	        }
-	    }
-	 
-	  @DeleteMapping("/delete/{bookingId}")
-	    public ResponseEntity<?> cancelBooking(@PathVariable Long bookingId) {
-	        try {
-	            Booking updatedBooking = bookingService.cancelBooking(bookingId);
-	            return ResponseEntity.ok(updatedBooking);
-	        } catch (RuntimeException e) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-	        }
-	    }
+	}
+
 }

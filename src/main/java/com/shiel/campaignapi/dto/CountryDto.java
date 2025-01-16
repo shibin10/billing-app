@@ -1,15 +1,17 @@
 package com.shiel.campaignapi.dto;
 
+
+
 public class CountryDto {
-	private Long countryId;
+	private Integer countryId;
 	private String countryCode;
 	private String Country;
 
-	public Long getCountryId() {
+	public Integer getCountryId() {
 		return countryId;
 	}
 
-	public void setCountryId(Long countryId) {
+	public void setCountryId(Integer countryId) {
 		this.countryId = countryId;
 	}
 
@@ -29,4 +31,6 @@ public class CountryDto {
 		Country = country;
 	}
 
+	public CountryDto() {
+	}
 }

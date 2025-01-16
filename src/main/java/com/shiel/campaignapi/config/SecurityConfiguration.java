@@ -30,7 +30,7 @@ public class SecurityConfiguration {
 		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests()
 				.requestMatchers("/auth/**", "/events/all", "/meetings/all", "/meetings/{meetingId}",
 						"/events/{eventId}", "/zoom-meetings/all", "/zoom-meetings/{meetingId}",
-						"/users/forgot-password", "/users/reset-password", "/country/all")
+						"/users/forgot-password", "/users/reset-password", "/country/all", "otp/generate")
 				.permitAll()
 				.requestMatchers("/events/add", "/events/update/*", "/events/delete/*", "/meetings/add",
 						"/meetings/update/*", "/meetings/delete/*", "/booking/all", "/users/all",
@@ -39,7 +39,8 @@ public class SecurityConfiguration {
 				.hasRole("ADMIN")
 
 				.requestMatchers("/booking/add", "/booking/{bookingId}", "booking/user/{userId}", "/booking/update/*",
-						"/users/update/*", "/users/{userId}", "/users/delete/*")
+						"/users/update/*", "/users/{userId}", "/users/delete/*", "/booking/isUserBooked",
+						"dependent/update/{dependentId}", "dependent/delete/*")
 				.hasAnyRole("USER", "ADMIN").and()
 
 				.anonymous(anonymous -> anonymous

@@ -29,11 +29,11 @@ public class EventController {
 	@PostMapping("/add")
 	public ResponseEntity<?> addEvent(@RequestBody EventDto eventDto) {
 		if (eventService.existsByTitle(eventDto.getTitle())) {
-			return ResponseEntity.badRequest().body("Error: event title is already taken!");
+			return ResponseEntity.badRequest().body("Event title is already taken!");
 		}
 		if (!eventService.isValidDate(eventDto.getStartDate(), eventDto.getEndDate())) {
 			return ResponseEntity.badRequest()
-					.body("Error: start date must be before end date and both dates must be in the future");
+					.body("Start date must be before end date and both dates must be in the future");
 		}
 		if (eventDto.getChildAmount().compareTo(eventDto.getAdultAmount()) > 0) {
 			return ResponseEntity.badRequest()

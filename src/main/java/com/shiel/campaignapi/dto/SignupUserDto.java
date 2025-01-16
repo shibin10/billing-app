@@ -9,7 +9,8 @@ public class SignupUserDto {
 	private Integer userId;
 	private String fullName;
 	private String place;
-	private String phoneExt;
+	private Integer countryId;
+	private CountryDto country;
 	private String phone;
 	private int age;
 	private String gender;
@@ -60,14 +61,22 @@ public class SignupUserDto {
 
 	public void setPlace(String place) {
 		this.place = place;
+	}	
+
+	public Integer getCountryId() {
+		return countryId;
 	}
 
-	public String getPhoneExt() {
-		return phoneExt;
+	public void setCountryId(Integer countryId) {
+		this.countryId = countryId;
 	}
 
-	public void setPhoneExt(String phoneExt) {
-		this.phoneExt = phoneExt;
+	public CountryDto getCountry() {
+		return country;
+	}
+
+	public void setCountry(CountryDto country) {
+		this.country = country;
 	}
 
 	public String getPhone() {
@@ -120,8 +129,8 @@ public class SignupUserDto {
 
 	@Override
 	public String toString() {
-		return "SignupUserDto [userId=" + userId + ", fullName=" + fullName + ", place=" + place + ", phoneExt="
-				+ phoneExt + " phone=" + phone + ", age=" + age + ", gender=" + gender + ", email=" + email
+		return "SignupUserDto [userId=" + userId + ", fullName=" + fullName + ", place=" + place + ", countryId="
+				+ countryId + " phone=" + phone + ", age=" + age + ", gender=" + gender + ", email=" + email
 				+ ", password=" + password + ",roles=" + roles + ",roleId=" + roleId + ",status=" + status + "]";
 	}
 

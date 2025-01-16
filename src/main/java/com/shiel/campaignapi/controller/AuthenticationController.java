@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.shiel.campaignapi.dto.SigninUserDto;
 import com.shiel.campaignapi.dto.SignupUserDto;
 import com.shiel.campaignapi.entity.User;
+import com.shiel.campaignapi.exception.UserBadRequest;
 import com.shiel.campaignapi.response.SigninResponse;
 import com.shiel.campaignapi.service.AuthenticationService;
 import com.shiel.campaignapi.service.JwtService;
@@ -35,18 +36,18 @@ public class AuthenticationController {
 		try {
 			int age = signupUserDto.getAge();
 			if (age < 15 || age > 100) {
-				return ResponseEntity.badRequest().body("Age must be between 15 and 100!");
+				 throw new UserBadRequest("Invalid Age", "Age must be between 15 and 100!", 400);
 			}
 		} catch (NumberFormatException e) {
-			return ResponseEntity.badRequest().body("Invalid age format!");
+			 throw new UserBadRequest("Invalid Age Format", "Invalid age format!", 400);
 		}
 
 		if (!signupUserDto.getPhone().matches("^\\+?[1-9]\\d{8,11}$")) {
-			return ResponseEntity.badRequest().body("Error: Invalid phone number ");
+			  throw new UserBadRequest("Invalid Phone Number", "Invalid phone number", 400);
 		}
 
 		if (authenticationService.existsByPhone(signupUserDto.getPhone())) {
-			return ResponseEntity.badRequest().body("Phone Number is already taken!");
+			  throw new UserBadRequest("Duplicate Phone Number", "Phone Number is already taken!", 400);
 		}
 		User registeredUser = authenticationService.signup(signupUserDto);
 

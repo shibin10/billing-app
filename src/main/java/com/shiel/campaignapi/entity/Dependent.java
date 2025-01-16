@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -44,8 +45,8 @@ public class Dependent implements Serializable {
 	@JoinColumn(name = "userid", referencedColumnName = "userid")
 	private User userId;
 
-	@ManyToOne
-    @JsonIgnore
+	@ManyToOne(cascade = CascadeType.PERSIST)
+	@JsonIgnore
 	@JoinColumn(name = "bookingid", referencedColumnName = "bookingid", nullable = true)
 	private Booking bookingId;
 
