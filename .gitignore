@@ -1,0 +1,27 @@
+# Maven build directory
+/target/
+
+# Ignore all JAR files
+*.jar
+
+# Eclipse / STS files
+.classpath
+.project
+.settings/
+
+# Logs
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE configurations
+.vscode/
+.idea/
+*.iml
+
+# Backup or temp files
+*.bak
+*.swp
+*~
