@@ -8,9 +8,13 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.app.billingapi.enums.CustomerType;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,10 +41,18 @@ public class Customer implements Serializable {
 	private String place;
 
 	@Column(name = "phone", nullable = false)
-	private Integer phone;
+	private String phone;
 	
 	@Column(name="totalspend", nullable=true)
 	private BigDecimal  totalSpend;
+	
+    @Enumerated(EnumType.STRING)
+    @Column(name = "customertype", nullable = false)
+    private CustomerType customerType;
+
+	
+    @Column(name = "loyaltypoints", nullable = true)
+    private Integer loyaltyPoints = 0;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "shopid", referencedColumnName = "shopid")
@@ -109,11 +121,11 @@ public class Customer implements Serializable {
 		this.name = name;
 	}
 
-	public Integer getPhone() {
+	public String getPhone() {
 		return phone;
 	}
 
-	public void setPhone(Integer phone) {
+	public void setPhone(String phone) {
 		this.phone = phone;
 	}
 	
@@ -125,24 +137,64 @@ public class Customer implements Serializable {
 	public void setInvoices(List<Invoice> invoices) {
 		this.invoices = invoices;
 	}
+	
+	
+
+	public BigDecimal getTotalSpend() {
+		return totalSpend;
+	}
+
+	public void setTotalSpend(BigDecimal totalSpend) {
+		this.totalSpend = totalSpend;
+	}
+
+	public CustomerType getCustomerType() {
+		return customerType;
+	}
+
+	public void setCustomerType(CustomerType customerType) {
+		this.customerType = customerType;
+	}
+
+	public Integer getLoyaltyPoints() {
+		return loyaltyPoints;
+	}
+
+	public void setLoyaltyPoints(Integer loyaltyPoints) {
+		this.loyaltyPoints = loyaltyPoints;
+	}
+
+	public User getReferredBy() {
+		return referredBy;
+	}
+
+	public void setReferredBy(User referredBy) {
+		this.referredBy = referredBy;
+	}
 
 	public Customer() {
 
 	}
 
-	public Customer(Long customerId, String name, String place, Integer phone, Shop shopId, List<Invoice> invoices,
+	public Customer(Long customerId, String name, String place, String phone, BigDecimal totalSpend,
+			CustomerType customerType, Integer loyaltyPoints, Shop shopId, User referredBy, List<Invoice> invoices,
 			Date createdAt, Date updatedAt) {
-		super();
+	
 		this.customerId = customerId;
 		this.name = name;
 		this.place = place;
 		this.phone = phone;
+		this.totalSpend = totalSpend;
+		this.customerType = customerType;
+		this.loyaltyPoints = loyaltyPoints;
 		this.shopId = shopId;
+		this.referredBy = referredBy;
 		this.invoices = invoices;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
 
+	
 	
 
 }

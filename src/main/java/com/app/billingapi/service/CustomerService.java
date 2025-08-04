@@ -3,7 +3,6 @@ package com.app.billingapi.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.app.billingapi.dto.CustomerDto;
@@ -16,7 +15,6 @@ import com.app.billingapi.exception.CustomerNotFoundException;
 import com.app.billingapi.exception.UserIllegalArgumentException;
 import com.app.billingapi.repository.CustomerRepository;
 import com.app.billingapi.repository.ShopRepository;
-import com.app.billingapi.repository.UserRepository;
 
 import jakarta.validation.Valid;
 
@@ -30,56 +28,46 @@ public class CustomerService {
 	private final CustomerRepository customerRepository;
 	private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
 	private final ShopRepository shopRepository;
-	private final UserRepository userRepository;
 
-	public CustomerService(CustomerRepository customerRepository, ShopRepository shopRepository,
-			UserRepository userRepository) {
+	public CustomerService(CustomerRepository customerRepository, ShopRepository shopRepository) {
 		this.customerRepository = customerRepository;
 		this.shopRepository = shopRepository;
-		this.userRepository = userRepository;
 	}
 
-	public boolean existsByPlace(String place) {
-		return customerRepository.existsByPlace(place);
+	public boolean existsByPhone(String phone) {
+		return customerRepository.existsByPhone(phone);
 	}
 
 	public Customer saveCustomer(CustomerDto customerDto) {
 		logger.info("Saving  Customers");
-		
-		 
 
-		    if (customerDto.getName() == null || customerDto.getName().trim().isEmpty()) {
-		        throw new UserIllegalArgumentException("Missing customer name", "Customer name is required", 400);
-		    }
+		if (customerDto.getName() == null || customerDto.getName().trim().isEmpty()) {
+			throw new UserIllegalArgumentException("Missing customer name", "Customer name is required", 400);
+		}
 
-		    if (customerDto.getPlace() == null || customerDto.getPlace().trim().isEmpty()) {
-		        throw new UserIllegalArgumentException("Missing place", "Customer place is required", 400);
-		    }
+		if (customerDto.getPlace() == null || customerDto.getPlace().trim().isEmpty()) {
+			throw new UserIllegalArgumentException("Missing place", "Customer place is required", 400);
+		}
 
-		    if (customerDto.getPhone() == null || customerDto.getPhone().toString().trim().isEmpty()) {
-		        throw new UserIllegalArgumentException("Missing phone number", "Customer phone number is required", 400);
-		    }
-		    if (!customerDto.getPhone().toString().matches("^[0-9]{10}$")) {
-		        throw new UserIllegalArgumentException("Invalid phone number", "Phone number must contain exactly 10 digits", 400);
-		    }
-
+		if (customerDto.getPhone() == null || customerDto.getPhone().toString().trim().isEmpty()) {
+			throw new UserIllegalArgumentException("Missing phone number", "Customer phone number is required", 400);
+		}
+		if (!customerDto.getPhone().toString().matches("^[0-9]{10}$")) {
+			throw new UserIllegalArgumentException("Invalid phone number",
+					"Phone number must contain exactly 10 digits", 400);
+		}
 
 		try {
 
-			String loggedInUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-			User user = userRepository.findByEmail(loggedInUserEmail)
-					.orElseThrow(() -> new IllegalArgumentException("User not found: " + loggedInUserEmail));
-			
-			Long userId = user.getUserId();
-
 			Shop shop = shopRepository.findById(customerDto.getShopId())
 					.orElseThrow(() -> new IllegalArgumentException("Invalid Shop Id: " + customerDto.getShopId()));
-
 
 			Customer customer = new Customer();
 			customer.setName(customerDto.getName());
 			customer.setPlace(customerDto.getPlace());
 			customer.setPhone(customerDto.getPhone());
+			customer.setCustomerType(customerDto.getCustomerType());
+			
 			customer.setShopId(shop);
 
 			return customerRepository.save(customer);
@@ -102,7 +90,7 @@ public class CustomerService {
 
 	public CustomerDto updateCustomer(CustomerDto customerDto) {
 		logger.info("Updating customer with ID: {}", customerDto.getCustomerId());
-		
+
 		Customer customer = customerRepository.findById(customerDto.getCustomerId())
 				.orElseThrow(() -> new CustomerNotFoundException(
 						"Customer not found with ID: " + customerDto.getCustomerId(),
@@ -111,9 +99,9 @@ public class CustomerService {
 		customer.setName(customerDto.getName());
 		customer.setPlace(customerDto.getPlace());
 		customer.setPhone(customerDto.getPhone());
-
+		customer.setCustomerType(customerDto.getCustomerType());
 		Customer customers = customerRepository.save(customer);
-		
+
 		return mapToCustomertDto(customers);
 	}
 
@@ -139,11 +127,17 @@ public class CustomerService {
 	}
 
 	private CustomerDto mapToCustomertDto(Customer customer) {
+	
 		CustomerDto customerDto = new CustomerDto();
+		customerDto.setCustomerId(customer.getCustomerId());
 		customerDto.setName(customer.getName());
 		customerDto.setPlace(customer.getPlace());
 		customerDto.setPhone(customer.getPhone());
-
+		customerDto.setTotalSpend(customer.getTotalSpend());
+		customerDto.setLoyaltyPoints(customer.getLoyaltyPoints());
+		customerDto.setCustomerType(customer.getCustomerType());
+		
+		
 		Shop shop = customer.getShopId();
 		if (shop != null) {
 			ShopDto shopDto = new ShopDto();
@@ -154,25 +148,20 @@ public class CustomerService {
 			shopDto.setMap(shop.getMap());
 			customerDto.setShop(shopDto);
 
-		User user = shop.getOwnerId();
-		if (user != null) {
-			SignupUserDto userDto = new SignupUserDto();
-			userDto.setUserId(user.getUserId());
-			userDto.setFullName(user.getFullName());
-			userDto.setEmail(user.getEmail());
-			userDto.setPlace(user.getPlace());
-			userDto.setPhone(user.getPhone());
-			userDto.setStatus(user.getStatus());
-			shopDto.setOwner(userDto);
-		}
-		
+			User user = shop.getOwner();
+			if (user != null) {
+				SignupUserDto userDto = new SignupUserDto();
+				userDto.setUserId(user.getUserId());
+				userDto.setFullName(user.getFullName());
+				userDto.setEmail(user.getEmail());
+				userDto.setPlace(user.getPlace());
+				userDto.setPhone(user.getPhone());
+				userDto.setStatus(user.getStatus());
+				shopDto.setOwner(userDto);
+			}
 
-	}
+		}
 		return customerDto;
 	}
 
-	public boolean existsByPhone(Integer phone) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 }

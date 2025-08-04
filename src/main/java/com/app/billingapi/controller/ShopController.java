@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.billingapi.dto.ShopDto;
-import com.app.billingapi.dto.SubscriptionPlanDto;
 import com.app.billingapi.entity.Shop;
 import com.app.billingapi.service.ShopService;
 
@@ -28,16 +28,19 @@ public class ShopController {
 	ShopService shopService;
 
 
-	@PostMapping("/add")
-	public ResponseEntity<?> addShop(@RequestBody ShopDto shopDto) {
+	  @PostMapping(value = "/add")
+	    public ResponseEntity<?> addShop(@RequestBody @Valid ShopDto shopDto) {
 
-		ShopDto createdShop = shopService.saveShop(shopDto);
-		return ResponseEntity.ok(" Shop Created successfully with ID: " + createdShop.getShopId());
-	}
+	        ShopDto createdShop = shopService.saveShop(shopDto);
+	        return ResponseEntity.ok("Shop created successfully with ID: " + createdShop.getShopId());
+	    }
 	
 	@GetMapping("/all")
-	public ResponseEntity<?> getAllShop() {
-		List<ShopDto> shops = shopService.findAllShops();
+	public ResponseEntity<?> getAllShop(@RequestHeader("Authorization") String authHeader) {
+		
+		   String token = authHeader.replace("Bearer ", "");
+		List<ShopDto> shops = shopService.findAllShops(token);
+		
 		if (shops.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Shops found");
 		} else {
@@ -72,7 +75,7 @@ public class ShopController {
 
 		}
 
-		Shop shop = shopService.updateShop(shopDto);
+		ShopDto shop = shopService.updateShop(shopDto);
 		if (shop == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Shop found");
 		} else {

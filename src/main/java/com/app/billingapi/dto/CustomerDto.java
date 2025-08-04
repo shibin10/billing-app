@@ -2,15 +2,20 @@ package com.app.billingapi.dto;
 
 import java.math.BigDecimal;
 
+import com.app.billingapi.enums.CustomerType;
+
 public class CustomerDto {
 	private Long customerId;
 	private String place;
 	private String name;
-	private Integer phone;
-	private ShopDto shop;
-	private long shopId;
+	private String phone;
 	private BigDecimal totalSpend;
 	private SignupUserDto referredby;
+	 private CustomerType customerType;
+	 private Integer loyaltyPoints;
+	private ShopDto shop;
+	private long shopId;
+
 	 //private List<InvoiceDto> invoices;
 
 	public Long getCustomerId() {
@@ -38,6 +43,22 @@ public class CustomerDto {
 	}
 	
 
+
+	public CustomerType getCustomerType() {
+		return customerType;
+	}
+
+	public void setCustomerType(CustomerType customerType) {
+		this.customerType = customerType;
+	}
+
+	public Integer getLoyaltyPoints() {
+		return loyaltyPoints;
+	}
+
+	public void setLoyaltyPoints(Integer loyaltyPoints) {
+		this.loyaltyPoints = loyaltyPoints;
+	}
 
 	public BigDecimal getTotalSpend() {
 		return totalSpend;
@@ -71,11 +92,11 @@ public class CustomerDto {
 		this.name = name;
 	}
 
-	public Integer getPhone() {
+	public String getPhone() {
 		return phone;
 	}
 
-	public void setPhone(Integer phone) {
+	public void setPhone(String phone) {
 		this.phone = phone;
 	}
 

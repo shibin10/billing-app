@@ -38,7 +38,6 @@ public class AuthenticationService {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.roleRepository = roleRepository;
-
 		logger.info("AuthenticationService initialized.");
 	}
 
@@ -52,31 +51,41 @@ public class AuthenticationService {
 		List<Role> roles = new ArrayList<>();
 
 		if (signupUserDto.getRoleId() != null) {
+			
 			logger.debug("Looking up role by ID: {}", signupUserDto.getRoleId());
 
 			Role role = roleRepository.findById(signupUserDto.getRoleId()).orElseThrow(() -> {
+				
 				logger.error("Role not found with ID: {}", signupUserDto.getRoleId());
+				
 				return new RuntimeException("Role not found with ID: " + signupUserDto.getRoleId());
 			});
-			
+
 			roles.add(role);
-			
+
 		} else {
+			
 			logger.debug("Assigning default role: ROLE_USER");
+			
 			Role defaultRole = roleRepository.findByRoleName("ROLE_USER").orElseThrow(() -> {
 				logger.error("Default role 'USER' not found in the database.");
 				return new RuntimeException("Default role 'USER' not found");
 			});
+			
 			roles.add(defaultRole);
 		}
 
 		user.setRoles(roles);
+
 		user = userRepository.save(user);
+		
 		logger.info("User successfully signed up with email: {}", user.getEmail());
+		
 		return user;
 	}
 
 	public User authenticate(SigninUserDto signinUserDto) {
+		
 		String identifier = signinUserDto.getIdentifier();
 		String password = signinUserDto.getPassword();
 

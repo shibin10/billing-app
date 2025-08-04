@@ -1,18 +1,23 @@
 package com.app.billingapi.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.app.billingapi.dto.ShopDto;
 import com.app.billingapi.dto.SignupUserDto;
 import com.app.billingapi.dto.SubscriptionPlanDto;
+import com.app.billingapi.entity.Role;
 import com.app.billingapi.entity.Shop;
 import com.app.billingapi.entity.SubscriptionPlan;
 import com.app.billingapi.entity.User;
@@ -20,36 +25,50 @@ import com.app.billingapi.enums.ShopStatus;
 import com.app.billingapi.repository.ShopRepository;
 import com.app.billingapi.repository.SubscriptionPlanRepository;
 import com.app.billingapi.repository.UserRepository;
+import com.app.billingapi.util.JwtUtils;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 public class ShopService {
 
-	@Autowired
-	UserRepository userRepository;
-
-	@Autowired
-	SubscriptionPlanRepository subscriptionPlanRepository;
+	private final SubscriptionPlanRepository subscriptionPlanRepository;
 
 	private final ShopRepository shopRepository;
 	private static final Logger logger = LoggerFactory.getLogger(ShopService.class);
 
+	private final UserRepository userRepository;
+	private final JwtUtils jwtUtils;
+	private final FileStorageService fileStorageService;
+
 	public ShopService(ShopRepository shopRepository, UserRepository userRepository,
-			SubscriptionPlanRepository subscriptionPlanRepository) {
+			SubscriptionPlanRepository subscriptionPlanRepository, FileStorageService fileStorageService,JwtUtils jwtUtils) {
 		this.shopRepository = shopRepository;
 		this.userRepository = userRepository;
 		this.subscriptionPlanRepository = subscriptionPlanRepository;
+		this.fileStorageService = fileStorageService;
+		this.jwtUtils = jwtUtils;
 	}
 
 	public ShopDto saveShop(ShopDto shopDto) {
-		logger.info("Saving shop: {}", shopDto);
-		try {
+		logger.info("Admin saving shop: {}", shopDto);
 
+		try {
 			Long ownerId = shopDto.getOwnerId();
-			if (ownerId == null)
+			if (ownerId == null) {
 				throw new RuntimeException("ownerId is required");
+			}
 
 			User user = userRepository.findById(ownerId)
 					.orElseThrow(() -> new RuntimeException("User not found with ID: " + ownerId));
+
+			boolean isEligible = user.getRoles().stream().map(Role::getRoleName)
+					.anyMatch(role -> role.equals("ROLE_OWNER"));
+
+			if (!isEligible) {
+				throw new RuntimeException("User is not OWNER");
+			}
 
 			Long planId = shopDto.getSubscriptionPlan().getPlanId();
 			SubscriptionPlan plan = subscriptionPlanRepository.findById(planId)
@@ -58,15 +77,30 @@ public class ShopService {
 			Shop shop = new Shop();
 			shop.setName(shopDto.getName());
 			shop.setPlace(shopDto.getPlace());
+			shop.setAddress(shopDto.getAddress());
 			shop.setStatus(ShopStatus.CREATED);
 			shop.setMap(shopDto.getMap());
-			shop.setOwnerId(user);
+			shop.setLogo(shopDto.getLogo());
+			shop.setPhone(shopDto.getPhone());
+			shop.setGstNo(shopDto.getGstNo());
 			shop.setSubscriptionPlanId(plan);
+			shop.setOwner(user);
+			shop.getUsers().add(user);
 
-			Shop save = shopRepository.save(shop);
-			return mapToShopDto(save);
+	/*		if (imageFile != null && !imageFile.isEmpty()) {
+				String relativePath = fileStorageService.saveImage(imageFile, "shops"); // stores at
+																						// /uploads/shops/uuid.ext
+				shop.setLogo(relativePath); // persist the relative path
+			}*/
+
+			shopRepository.save(shop);
+			user.getShops().add(shop);
+			userRepository.save(user);
+
+			return mapToShopDto(shop);
+
 		} catch (Exception e) {
-			logger.error("Error saving shop: {}", shopDto, e);
+			logger.error("Error saving shop by admin: {}", shopDto, e);
 			throw new RuntimeException("Error saving shop", e);
 		}
 	}
@@ -81,23 +115,36 @@ public class ShopService {
 		}
 	}
 
-	public List<ShopDto> findAllShops() {
-		logger.info("Finding all shops");
-		try {
-			List<Shop> shops = shopRepository.findAll();
-			return shops.stream().map((shop) -> mapToShopDto(shop)).collect(Collectors.toList());
-		} catch (Exception e) {
-			logger.error("Error finding all shops", e);
-			throw new RuntimeException("Error finding shops", e);
+	public List<ShopDto> findAllShops(String token) {
+
+		String role = jwtUtils.extractRoleName(token);
+	//	System.out.println(role);
+		String loggedInEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+		boolean ownerOrStaff = role.equals("ROLE_OWNER") || role.equals("ROLE_STAFF");
+
+		if (ownerOrStaff) {
+
+			Long shopId = jwtUtils.extractShopId(token); 
+			Shop shop = shopRepository.findById(shopId)
+	                .orElseThrow(() -> new IllegalArgumentException("Shop not found with ID: " + shopId));
+			  return Collections.singletonList(mapToShopDto(shop));
 		}
+
+		return shopRepository.findAll().stream().map(this::mapToShopDto).collect(Collectors.toList());
 	}
 
-	public Shop updateShop(ShopDto shopDto) {
+	public ShopDto updateShop(ShopDto shopDto) {
 		try {
 			logger.info("Updating shop: {}", shopDto);
-			
-			User user = userRepository.findById(shopDto.getOwner().getUserId()).orElseThrow(
-					() -> new RuntimeException("User not found with ID: " + shopDto.getOwner().getUserId()));
+
+			Long userId = shopDto.getOwner().getUserId();
+			User user = userRepository.findById(userId)
+					.orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+			Long planId = shopDto.getSubscriptionPlan().getPlanId();
+			SubscriptionPlan plan = subscriptionPlanRepository.findById(planId)
+					.orElseThrow(() -> new RuntimeException("Subscription plan not found with ID: " + planId));
+
 			Optional<Shop> optionalShop = shopRepository.findById(shopDto.getShopId());
 
 			if (optionalShop.isPresent()) {
@@ -105,10 +152,18 @@ public class ShopService {
 
 				shop.setName(shopDto.getName());
 				shop.setPlace(shopDto.getPlace());
+				shop.setAddress(shopDto.getAddress());
 				shop.setStatus(shopDto.getStatus());
 				shop.setMap(shopDto.getMap());
-				shop.setOwnerId(user);
-				return shopRepository.save(shop);
+				shop.setPhone(shopDto.getPhone());
+				shop.setGstNo(shopDto.getGstNo());
+				shop.setLogo(shopDto.getLogo());
+				shop.setOwner(user);
+				shop.setSubscriptionPlanId(plan);
+
+				Shop shops = shopRepository.save(shop);
+				return mapToShopDto(shops);
+
 			} else {
 				logger.warn("Shop not found with ID: {}", shopDto.getShopId());
 				throw new RuntimeException("Shop not found with id " + shopDto.getShopId());
@@ -145,11 +200,15 @@ public class ShopService {
 		ShopDto shopDto = new ShopDto();
 		shopDto.setShopId(shop.getShopId());
 		shopDto.setName(shop.getName());
+		shopDto.setPhone(shop.getPhone());
+		shopDto.setAddress(shop.getAddress());
 		shopDto.setPlace(shop.getPlace());
 		shopDto.setStatus(shop.getStatus());
 		shopDto.setMap(shop.getMap());
+		shopDto.setGstNo(shop.getGstNo());
+		shopDto.setLogo(shop.getLogo());
 
-		User user = shop.getOwnerId();
+		User user = shop.getOwner();
 		if (user != null) {
 			SignupUserDto userDto = new SignupUserDto();
 			userDto.setUserId(user.getUserId());
@@ -163,6 +222,8 @@ public class ShopService {
 		SubscriptionPlan plan = shop.getSubscriptionPlanId();
 		if (plan != null) {
 			SubscriptionPlanDto subscriptionPlanDto = new SubscriptionPlanDto();
+
+			subscriptionPlanDto.setPlanId(plan.getPlanId());
 			subscriptionPlanDto.setPlanName(plan.getPlanName());
 			shopDto.setSubscriptionPlan(subscriptionPlanDto);
 		}

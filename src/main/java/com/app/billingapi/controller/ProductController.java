@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,30 +27,26 @@ public class ProductController {
 
 	@Autowired
 	ProductService productService;
-
-	@PostMapping("/adds")
-	public ResponseEntity<?> addProduct(@RequestBody ProductDto productDto) {
-		if (productService.existsByName(productDto.getName())) {
-			return ResponseEntity.badRequest().body("Product already Exist");
-		}
-		Product productid = productService.saveProduct(productDto);
-		String message = String.format("Product Added successfully!", productid);
-		return ResponseEntity.ok(message);
-
-	}
 	
-	@PostMapping("/add")
-	public ResponseEntity<?> addMultipleProducts(@RequestBody List<@Valid ProductDto> productDtos) {
-	    List<ProductDto> savedProducts = new ArrayList<>();
-	    for (ProductDto dto : productDtos) {
-	        Product saved = productService.saveProduct(dto);
-	        ProductDto responseDto = productService.mapToProductDto(saved);
-	        savedProducts.add(responseDto);
-	    }
-	    return ResponseEntity.ok(savedProducts);
-	}
+	 
 
+	  @PostMapping("/add")
+	  public ResponseEntity<?> addMultipleProducts(@RequestHeader("Authorization") String authHeader,
+	                                               @RequestBody List<@Valid ProductDto> productDtos) {
 
+	      String token = authHeader.replace("Bearer ", "");
+	      List<ProductDto> savedProducts = new ArrayList<>();
+
+	      for (ProductDto dto : productDtos) {
+	          Product saved = productService.saveProduct(dto, token);
+	          ProductDto responseDto = productService.mapToProductDto(saved);
+	          savedProducts.add(responseDto);
+	      }
+
+	      return ResponseEntity.ok(savedProducts);
+	  }
+
+	 
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllProduct() {
 		List<ProductDto> product = productService.findAllProducts();
@@ -61,31 +58,13 @@ public class ProductController {
 	}
 
 	@PostMapping("/update/{productId}")
-	public ResponseEntity<?> updateProduct(@PathVariable("productId") Long productId,
-			@Valid @RequestBody ProductDto productDto) {
-		System.out.println("Received request to update product with ID: " + productId);
-		System.out.println("ProductDto received: " + productDto);
-
-		if (productId == null || productDto == null) {
-			System.out.println("Bad request: Product ID or ProductDto is null");
-			return ResponseEntity.badRequest().body("Product Id cannot be null");
-		}
+	public ResponseEntity<?> updateProduct(@PathVariable Long productId, @RequestBody @Valid ProductDto productDto) {
 
 		if (!productId.equals(productDto.getProductId())) {
-			System.out.println("Bad request: Product ID in path and body do not match");
-			return ResponseEntity.badRequest().body("Invalid Product ID in the request");
+			return ResponseEntity.badRequest().body("Product ID mismatch.");
 		}
-
-		System.out.println("Calling productService.updateProduct()");
 		ProductDto updatedProductDto = productService.updateProduct(productDto);
-
-		if (updatedProductDto == null) {
-			System.out.println("Update failed: Product not found");
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not found");
-		} else {
-			System.out.println("Product updated successfully: " + updatedProductDto);
-			return ResponseEntity.ok().body(updatedProductDto);
-		}
+		return ResponseEntity.ok(updatedProductDto);
 	}
 
 	@DeleteMapping("/delete/{productId}")

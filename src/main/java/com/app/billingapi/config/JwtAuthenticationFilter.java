@@ -25,6 +25,7 @@ import com.app.billingapi.service.JwtService;
 import io.jsonwebtoken.Claims;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -60,6 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			final Claims claims = jwtService.extractAllClaims(jwt);
 			
 			final Long userId = claims.get("userId", Long.class);
+			final Long shopId = claims.get("shopId", Long.class);
 			final String fullName = claims.get("fullName", String.class);
 			final String role = claims.get("roleName", String.class);
 			final String email = jwtService.extractUsername(jwt);
@@ -67,7 +69,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 			if (email != null && authentication == null) {
+				
 				UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
+				
 				if (jwtService.isTokenValid(jwt, userDetails)) {
 
 					 List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
@@ -76,13 +80,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 								null, authorities
 
 						);
-						authToken.setDetails(Map.of(
-								"userId", userId,
-								"fullName",fullName,
-							    "role", role,
-								 "requestDetails", new WebAuthenticationDetailsSource().buildDetails(request)));
-						SecurityContextHolder.getContext().setAuthentication(authToken);
-					}
+						  Map<String, Object> details = new HashMap<>();
+				            details.put("userId",       userId);
+				            details.put("fullName",     fullName);
+				            details.put("roleName",     role);   
+				            if (shopId != null) details.put("shopId", shopId);
+				            details.put("requestDetails",
+				                        new WebAuthenticationDetailsSource().buildDetails(request));
+
+				            authToken.setDetails(details);
+
+				            SecurityContextHolder.getContext().setAuthentication(authToken);
+				        }
 			}
 
 			filterChain.doFilter(request, response);

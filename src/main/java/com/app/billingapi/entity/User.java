@@ -2,6 +2,7 @@
 package com.app.billingapi.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.app.billingapi.enums.UserStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 
@@ -58,17 +60,24 @@ public class User implements UserDetails {
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "userid"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private List<Role> roles;
+	
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "user_shop", joinColumns = @JoinColumn(name = "userid"), inverseJoinColumns = @JoinColumn(name = "shop_id"))
+	private List<Shop> shops;
+
 
 	@ManyToOne
+	@JsonIgnore
     @JoinColumn(name = "referredby", referencedColumnName = "userid", nullable = true)
     private User referredBy;
 
     @OneToMany(mappedBy = "referredBy", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<User> referredUsers;
     
-    @OneToOne(mappedBy = "ownerId")
-    private Shop shop;
-    
+    @OneToMany(mappedBy = "owner")
+    private List<Shop> ownedShops = new ArrayList<>();
+
 	public User() {
 	}
 
@@ -204,13 +213,16 @@ public class User implements UserDetails {
 		this.referredUsers = referredUsers;
 	}
 
-	public Shop getShop() {
-		return shop;
+
+	public List<Shop> getOwnedShops() {
+		return ownedShops;
 	}
 
-	public void setShop(Shop shop) {
-		this.shop = shop;
+
+	public void setOwnedShops(List<Shop> ownedShops) {
+		this.ownedShops = ownedShops;
 	}
+
 
 	public UserStatus getStatus() {
 		return status;
@@ -221,6 +233,17 @@ public class User implements UserDetails {
 		return this;
 
 	}
+	
+
+	public List<Shop> getShops() {
+		return shops;
+	}
+
+
+	public void setShops(List<Shop> shops) {
+		this.shops = shops;
+	}
+
 
 	@Override
 	public boolean isEnabled() {

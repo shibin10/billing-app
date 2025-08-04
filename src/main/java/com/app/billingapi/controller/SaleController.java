@@ -19,6 +19,8 @@ public class SaleController {
 
 	@Autowired
 	private SaleService saleService;
+	
+
 
 	@PostMapping("/add")
 	public ResponseEntity<?> addSale(@RequestBody @Valid SaleDto saleDto) {
@@ -89,4 +91,15 @@ public class SaleController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
 		}
 	}
+	
+	@PatchMapping("/{saleId}/discount")
+	public ResponseEntity<?> applyDiscountToSale(
+	        @PathVariable Long saleId,
+	        @RequestBody SaleDto saleDto
+	) {
+	    Sale updatedSale = saleService.applyDiscount(saleId, saleDto.getDiscountAmount());
+	    return ResponseEntity.ok("Discount applied successfully. Final amount: ₹" + updatedSale.getFinalAmount());
+	}
+
+
 }

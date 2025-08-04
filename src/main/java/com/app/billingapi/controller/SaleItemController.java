@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,21 +21,28 @@ public class SaleItemController {
 	private SaleItemService saleItemService;
 
 	@PostMapping("/add")
-	public ResponseEntity<?> addSaleItem(@RequestBody @Valid SaleItemDto saleItemDto) {
-		
+	public ResponseEntity<?> addSaleItems(@RequestBody @Valid List<SaleItemDto> saleItemDtos) {
+	   
 		try {
-			SaleItem createdItem = saleItemService.createSaleItem(saleItemDto);
-			return ResponseEntity.ok("Sale item created successfully with ID: " + createdItem.getInvoiceItemId());
-		
+	        List<SaleItemDto> createdSaleItems = new ArrayList<>();
+	       
+	        for (SaleItemDto dto : saleItemDtos ) {
+	        	SaleItem saved = saleItemService.createSaleItem(dto);
+	        	SaleItemDto responseDto = saleItemService.mapToDto(saved);
+	        	createdSaleItems.add(responseDto);
+	        }
+	        
+	        return ResponseEntity.ok("Sale items created successfully with IDs: " );
+	    
 		} catch (IllegalArgumentException e) {
-			
-			return ResponseEntity.badRequest().body(e.getMessage());
-			
-		} catch (Exception ex) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Failed to create sale item. Reason: " + ex.getMessage());
-		}
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	   
+	    } catch (Exception ex) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("Failed to create sale items. Reason: " + ex.getMessage());
+	    }
 	}
+
 
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllSaleItems() {

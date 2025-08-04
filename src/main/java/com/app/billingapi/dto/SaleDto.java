@@ -1,22 +1,31 @@
 package com.app.billingapi.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
+import com.app.billingapi.enums.BillType;
 import com.app.billingapi.enums.PaymentMode;
 import com.app.billingapi.enums.PaymentStatus;
+import com.app.billingapi.enums.SaleType;
 
 public class SaleDto {
 
 	private Long saleId;
 	private Long staffId; // User ID for staff
 	private Long customerId;
+	private Long shopId;
 	private BigDecimal totalAmount;
 	private BigDecimal taxRate;
-	private Long discountId;;
+	private BigDecimal discountAmount;
 	private BigDecimal finalAmount;
 	private PaymentMode paymentMode;
 	private PaymentStatus paymentStatus;
+	private SaleType saleType;
+	private BillType billType;
 	private String transactionId;
+	private LocalDate saleDate;
+	private Long discountId;;
+	
 
 	// Getters and Setters
 	public Long getSaleId() {
@@ -35,6 +44,23 @@ public class SaleDto {
 		this.staffId = staffId;
 	}
 
+	
+	public Long getShopId() {
+		return shopId;
+	}
+
+	public void setShopId(Long shopId) {
+		this.shopId = shopId;
+	}
+
+	public LocalDate getSaleDate() {
+		return saleDate;
+	}
+
+	public void setSaleDate(LocalDate saleDate) {
+		this.saleDate = saleDate;
+	}
+
 	public Long getCustomerId() {
 		return customerId;
 	}
@@ -51,6 +77,14 @@ public class SaleDto {
 		this.totalAmount = totalAmount;
 	}
 
+	public BigDecimal getDiscountAmount() {
+		return discountAmount;
+	}
+
+	public void setDiscountAmount(BigDecimal discountAmount) {
+		this.discountAmount = discountAmount;
+	}
+
 	public BigDecimal getTaxRate() {
 		return taxRate;
 	}
@@ -58,8 +92,6 @@ public class SaleDto {
 	public void setTaxRate(BigDecimal taxRate) {
 		this.taxRate = taxRate;
 	}
-
-
 
 	public Long getDiscountId() {
 		return discountId;
@@ -91,6 +123,22 @@ public class SaleDto {
 
 	public void setPaymentStatus(PaymentStatus paymentStatus) {
 		this.paymentStatus = paymentStatus;
+	}
+
+	public SaleType getSaleType() {
+		return saleType;
+	}
+
+	public void setSaleType(SaleType saleType) {
+		this.saleType = saleType;
+	}
+
+	public BillType getBillType() {
+		return billType;
+	}
+
+	public void setBillType(BillType billType) {
+		this.billType = billType;
 	}
 
 	public String getTransactionId() {

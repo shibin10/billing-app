@@ -10,67 +10,56 @@ import org.springframework.stereotype.Service;
 
 import com.app.billingapi.dto.SignupUserDto;
 import com.app.billingapi.entity.PasswordResetToken;
+import com.app.billingapi.entity.Role;
+import com.app.billingapi.entity.Shop;
 import com.app.billingapi.entity.User;
+import com.app.billingapi.enums.UserStatus;
 import com.app.billingapi.exception.UserNotFoundException;
 import com.app.billingapi.repository.PasswordResetTokenRepository;
+import com.app.billingapi.repository.RoleRepository;
+import com.app.billingapi.repository.ShopRepository;
 import com.app.billingapi.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordResetTokenRepository passwordResetTokenRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final ShopRepository shopRepository;
+	private final RoleRepository roleRepository;
 	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 	@Autowired
 	private JavaMailSender mailSender;
 
 	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-			PasswordResetTokenRepository passwordResetTokenRepository) {
+			PasswordResetTokenRepository passwordResetTokenRepository, ShopRepository shopRepository,
+			RoleRepository roleRepository) {
 		this.userRepository = userRepository;
 		this.passwordResetTokenRepository = passwordResetTokenRepository;
 		this.passwordEncoder = passwordEncoder;
-	
+		this.shopRepository = shopRepository;
+		this.roleRepository = roleRepository;
+
 	}
 
+	
+	
 	public List<SignupUserDto> allUsers() {
-		logger.info("Fetching all users");
+		logger.info("Fetching all invoices");
 		try {
-			List<User> users = new ArrayList<>();
-			userRepository.findAll().forEach(users::add);
-			List<SignupUserDto> userDtoList = new ArrayList<>();
-
-			for (User user : users) {
-				SignupUserDto signupDto = new SignupUserDto();
-				signupDto.setFullName(user.getFullName());			
-				signupDto.setPhone(user.getPhone());
-				signupDto.setEmail(user.getEmail());
-				signupDto.setPlace(user.getPlace());
-				signupDto.setRoles(user.getRoles());
-				signupDto.setUserId(user.getUserId());
-				signupDto.setStatus(user.getStatus());
-				
-				 User referredByUser = user.getReferredBy();
-		            if (referredByUser != null) {
-		                signupDto.setReferredByUserId(referredByUser.getUserId());
-		            }
-		            
-				userDtoList.add(signupDto);
-			}
-
-			return userDtoList;
-			
+			return userRepository.findAll().stream().map(this::mapUserToDto).collect(Collectors.toList());
 		} catch (Exception e) {
-			
-			logger.error("Error occurred while fetching all users", e);
-			throw new RuntimeException("Failed to fetch users", e);
+			logger.error("Error fetching invoices", e);
+			throw new RuntimeException("Failed to fetch Users", e);
 		}
-
 	}
 
 	public User updateUser(SignupUserDto userDto) {
@@ -86,16 +75,15 @@ public class UserService {
 				user.setFullName(userDto.getFullName());
 				user.setPhone(userDto.getPhone());
 				
-				
-				
+
 				if (userDto.getPassword() != null) {
 					user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 				}
-				
+
 				if (userDto.getRoles() != null) {
 					user.setRoles(userDto.getRoles());
 				}
-				
+
 				return userRepository.save(user);
 			} else {
 				throw new RuntimeException("User not found with id " + userDto.getUserId());
@@ -113,14 +101,17 @@ public class UserService {
 		return mapUserToDto(user);
 	}
 
-	private SignupUserDto mapUserToDto(User user) {
+	public SignupUserDto mapUserToDto(User user) {
+		
 		SignupUserDto dto = new SignupUserDto();
+		
 		dto.setUserId(user.getUserId());
 		dto.setFullName(user.getFullName());
 		dto.setEmail(user.getEmail());
 		dto.setPhone(user.getPhone());
 		dto.setPlace(user.getPlace());
 		dto.setRoles(user.getRoles());
+		
 		return dto;
 	}
 
@@ -143,7 +134,7 @@ public class UserService {
 		String message = String.format("Dear %s,\n\n" + "Your account information has been successfully updated.\n"
 				+ "Update Type: %s\n" + "Date and Time: %s\n\n"
 				+ "If you did not request this update, please contact our support team immediately.\n\n"
-				+ "Best Regards,\n" + "Shiel Bible Home", fullName, updateType, LocalDateTime.now());
+				+ "Best Regards,\n" + "Billing App", fullName, updateType, LocalDateTime.now());
 
 		SimpleMailMessage email = new SimpleMailMessage();
 		email.setTo(recipientEmail);
@@ -160,6 +151,63 @@ public class UserService {
 
 	public void invalidatePasswordResetToken(PasswordResetToken token) {
 		passwordResetTokenRepository.delete(token);
+	}
+
+	public User createStaffForOwner(Long ownerId, SignupUserDto signupUserDto) {
+	    logger.info("Creating staff for owner ID: {}", ownerId);
+
+	    List<Shop> shops = shopRepository.findByOwner_UserId(ownerId);
+	    if (shops.isEmpty()) {
+	        throw new IllegalStateException("No shop found for this owner");
+	    }
+
+	    User staffUser = new User()
+	            .setFullName(signupUserDto.getFullName())
+	            .setEmail(signupUserDto.getEmail())
+	            .setPassword(passwordEncoder.encode(signupUserDto.getPassword()))
+	            .setPhone(signupUserDto.getPhone())
+	            .setPlace(signupUserDto.getPlace())
+	            .setStatus(UserStatus.ACTIVE);
+
+	    Role staffRole;
+	    if (signupUserDto.getRoleId() != null) {
+	        staffRole = roleRepository.findById(signupUserDto.getRoleId())
+	                .orElseThrow(() -> new IllegalArgumentException("Invalid role ID"));
+	    } else {
+	        staffRole = roleRepository.findByRoleName("ROLE_STAFF")
+	                .orElseThrow(() -> new RuntimeException("Default STAFF role not found"));
+	    }
+	    staffUser.setRoles(List.of(staffRole));
+
+	    staffUser.setShops(shops);  
+
+	    return userRepository.save(staffUser);
+	}
+
+	public List<SignupUserDto> getStaffByShopOwner(Long ownerId) {
+	  
+		List<Shop> shops = shopRepository.findByOwner_UserId(ownerId);
+	    if (shops.isEmpty()) {
+	        throw new IllegalStateException("No shops found for this owner.");
+	    }
+
+	    Set<User> staffUsers = new HashSet<>();
+	    
+	    for (Shop shop : shops) {
+	    	
+	        List<User> users = userRepository.findByShops_ShopId(shop.getShopId());
+	        
+	        for (User user : users) {
+	            if (!user.getUserId().equals(ownerId)) {
+	                staffUsers.add(user); // exclude owner
+	            }
+	        }
+	    }
+	   
+
+	    return staffUsers.stream()
+	            .map(this::mapUserToDto)
+	            .collect(Collectors.toList());
 	}
 
 }

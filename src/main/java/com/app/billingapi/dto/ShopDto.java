@@ -8,16 +8,18 @@ public class ShopDto implements Serializable {
 	static final long serialVersionUID = 1L;
 	private Long shopId;
 	private String name;
+	private String address;
 	private String place;
 	private ShopStatus status;
 	private String map;
-	
-	 private Long ownerId; 
-	    private Long subscriptionPlanId;
-	
-	private SignupUserDto owner;
+	private String gstNo;
+	private String phone;
+	private String logo;
 	private SubscriptionPlanDto subscriptionPlan;
-	 private ShopSubscriptionDto shopSubscription;
+	private SignupUserDto owner;
+	private ShopSubscriptionDto shopSubscription;
+	private Long subscriptionPlanId;
+	private Long ownerId;
 
 	public Long getShopId() {
 		return shopId;
@@ -42,6 +44,41 @@ public class ShopDto implements Serializable {
 	public void setPlace(String place) {
 		this.place = place;
 	}
+	
+
+	public String getGstNo() {
+		return gstNo;
+	}
+
+	public void setGstNo(String gstNo) {
+		this.gstNo = gstNo;
+	}
+
+	
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getLogo() {
+		return logo;
+	}
+
+	public void setLogo(String logo) {
+		this.logo = logo;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
 
 	public ShopStatus getStatus() {
 		return status;
@@ -58,8 +95,6 @@ public class ShopDto implements Serializable {
 	public void setMap(String map) {
 		this.map = map;
 	}
-
-
 
 	public Long getOwnerId() {
 		return ownerId;

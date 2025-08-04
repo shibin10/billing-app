@@ -3,6 +3,7 @@ package com.app.billingapi.dto;
 import java.util.List;
 
 import com.app.billingapi.entity.Role;
+import com.app.billingapi.entity.Shop;
 import com.app.billingapi.enums.UserStatus;
 
 public class SignupUserDto {
@@ -15,11 +16,13 @@ public class SignupUserDto {
 	private String email;
 	private String password;
 	private SignupUserDto referredBy;
-	private List<SignupUserDto> referredUsers;
+	private UserStatus status;
 	private ShopDto shop;
 	private List<Role> roles;
+	private List<Shop> shops;
+	private List<Long> shopIds; 
+	private Long shopId;
 	private Long roleId;
-	private UserStatus status;
 	private Long referredByUserId;
 
 	public String getEmail() {
@@ -105,7 +108,6 @@ public class SignupUserDto {
 		this.roleId = roleId;
 	}
 
-	
 	public SignupUserDto getReferredBy() {
 		return referredBy;
 	}
@@ -122,20 +124,37 @@ public class SignupUserDto {
 		this.referredByUserId = referredByUserId;
 	}
 
-	public List<SignupUserDto> getReferredUsers() {
-		return referredUsers;
-	}
-
-	public void setReferredUsers(List<SignupUserDto> referredUsers) {
-		this.referredUsers = referredUsers;
-	}
-
+	
 	public ShopDto getShop() {
 		return shop;
 	}
 
 	public void setShop(ShopDto shop) {
 		this.shop = shop;
+	}
+
+	public List<Shop> getShops() {
+		return shops;
+	}
+
+	public List<Long> getShopIds() {
+		return shopIds;
+	}
+
+	public void setShopIds(List<Long> shopIds) {
+		this.shopIds = shopIds;
+	}
+
+	public void setShops(List<Shop> shops) {
+		this.shops = shops;
+	}
+
+	public Long getShopId() {
+		return shopId;
+	}
+
+	public void setShopId(Long shopId) {
+		this.shopId = shopId;
 	}
 
 	public UserStatus getStatus() {

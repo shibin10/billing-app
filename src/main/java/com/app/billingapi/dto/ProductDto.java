@@ -4,22 +4,16 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Pattern;
-
 public class ProductDto {
+
 	private Long productId;
 	private String productNumber;
 	private Long hsn;
 	private String name;
 	private String description;
-	@Pattern(regexp = "\\d+", message = "Quantity must be a number")
 	private Integer quantity;
-	@DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
-	private BigDecimal ourPrice;
-	@DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
+	private BigDecimal purchasePrice;
 	private BigDecimal wholesaleRate;
-	@DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
 	private BigDecimal retailRate;
 	private BigDecimal taxRate;
 	private BigDecimal CGST;
@@ -29,9 +23,39 @@ public class ProductDto {
 	private Date expiry;
 	private String barcode;
 	private Long shopId;
-	private ShopDto shop; 
+	private ShopDto shop;
 	private Date createdAt;
 	private Date updatedAt;
+
+	public ProductDto() {
+	}
+
+	public ProductDto(Long productId, String productNumber, Long hsn, String name, String description, Integer quantity,
+			BigDecimal purchasePrice, BigDecimal wholesaleRate, BigDecimal retailRate, BigDecimal taxRate,
+			BigDecimal CGST, BigDecimal SGST, String category, String imageUrl, Date expiry, String barcode,
+			Long shopId, ShopDto shop, Date createdAt, Date updatedAt) {
+		super();
+		this.productId = productId;
+		this.productNumber = productNumber;
+		this.hsn = hsn;
+		this.name = name;
+		this.description = description;
+		this.quantity = quantity;
+		this.purchasePrice = purchasePrice;
+		this.wholesaleRate = wholesaleRate;
+		this.retailRate = retailRate;
+		this.taxRate = taxRate;
+		this.CGST = CGST;
+		this.SGST = SGST;
+		this.category = category;
+		this.imageUrl = imageUrl;
+		this.expiry = expiry;
+		this.barcode = barcode;
+		this.shopId = shopId;
+		this.shop = shop;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+	}
 
 	public Long getProductId() {
 		return productId;
@@ -40,7 +64,6 @@ public class ProductDto {
 	public void setProductId(Long productId) {
 		this.productId = productId;
 	}
-	
 
 	public String getProductNumber() {
 		return productNumber;
@@ -74,12 +97,12 @@ public class ProductDto {
 		this.quantity = quantity;
 	}
 
-	public BigDecimal getOurPrice() {
-		return ourPrice;
+	public BigDecimal getPurchasePrice() {
+		return purchasePrice;
 	}
 
-	public void setOurPrice(BigDecimal ourPrice) {
-		this.ourPrice = ourPrice;
+	public void setPurchasePrice(BigDecimal purchasePrice) {
+		this.purchasePrice = purchasePrice;
 	}
 
 	public BigDecimal getWholesaleRate() {
@@ -113,8 +136,6 @@ public class ProductDto {
 	public void setCategory(String category) {
 		this.category = category;
 	}
-	
-	
 
 	public Long getHsn() {
 		return hsn;
@@ -184,19 +205,20 @@ public class ProductDto {
 		return CGST;
 	}
 
-	public void setCGST(BigDecimal cGST) {
-		CGST = cGST;
+	public void setCGST(BigDecimal CGST) {
+		this.CGST = CGST;
 	}
 
 	public BigDecimal getSGST() {
 		return SGST;
 	}
 
-	public void setSGST(BigDecimal sGST) {
-		SGST = sGST;
+	public void setSGST(BigDecimal SGST) {
+		this.SGST = SGST;
 	}
 
 	
+
 	
 
 }

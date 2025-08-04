@@ -21,7 +21,7 @@ public class SaleItem {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "saleitemid")
-	private Long invoiceItemId;
+	private Long saleItemId;
 
 	@ManyToOne
 	@JoinColumn(name = "saleid", referencedColumnName = "saleid")
@@ -34,7 +34,7 @@ public class SaleItem {
 	@Column(name = "quantity")
 	private BigDecimal quantity;
 
-	@Column(name = "price")
+	@Column(name = "price",nullable = true)
 	private BigDecimal price;
 
 	@Column(name = "tax", nullable = true)
@@ -42,6 +42,9 @@ public class SaleItem {
 
 	@Column(name = "total")
 	private BigDecimal total;
+	
+	@Column(name = "discount")
+	private BigDecimal discount;
 
 	@CreationTimestamp
 	@Column(updatable = false, name = "createdat")
@@ -92,11 +95,11 @@ public class SaleItem {
 	}
 
 	public Long getInvoiceItemId() {
-		return invoiceItemId;
+		return saleItemId;
 	}
 
-	public void setInvoiceItemId(Long invoiceItemId) {
-		this.invoiceItemId = invoiceItemId;
+	public void setInvoiceItemId(Long saleItemId) {
+		this.saleItemId = saleItemId;
 	}
 
 	public Date getCreatedAt() {
@@ -115,6 +118,23 @@ public class SaleItem {
 		this.updatedAt = updatedAt;
 	}
 
+	
+	public Long getSaleItemId() {
+		return saleItemId;
+	}
+
+	public void setSaleItemId(Long saleItemId) {
+		this.saleItemId = saleItemId;
+	}
+
+	public BigDecimal getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(BigDecimal discount) {
+		this.discount = discount;
+	}
+
 	public SaleItem() {
 
 	}
@@ -127,10 +147,10 @@ public class SaleItem {
 		this.saleId = saleId;
 	}
 
-	public SaleItem(Long invoiceItemId, Sale saleId, Product product, BigDecimal quantity, BigDecimal price,
+	public SaleItem(Long saleItemId, Sale saleId, Product product, BigDecimal quantity, BigDecimal price,
 			BigDecimal tax, BigDecimal total, Date createdAt, Date updatedAt) {
 		super();
-		this.invoiceItemId = invoiceItemId;
+		this.saleItemId = saleItemId;
 		this.saleId = saleId;
 		this.product = product;
 		this.quantity = quantity;

@@ -2,11 +2,9 @@ package com.app.billingapi.service;
 
 import com.app.billingapi.dto.SaleDto;
 import com.app.billingapi.entity.Customer;
-import com.app.billingapi.entity.Discount;
 import com.app.billingapi.entity.Sale;
 import com.app.billingapi.entity.User;
 import com.app.billingapi.repository.CustomerRepository;
-import com.app.billingapi.repository.DiscountRepository;
 import com.app.billingapi.repository.SaleRepository;
 import com.app.billingapi.repository.UserRepository;
 
@@ -14,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,14 +25,12 @@ public class SaleService {
 	private final SaleRepository saleRepository;
 	private final UserRepository userRepository;
 	private final CustomerRepository customerRepository;
-	private final DiscountRepository discountRepository;
 
 	public SaleService(SaleRepository saleRepository, UserRepository userRepository,
-			CustomerRepository customerRepository, DiscountRepository discountRepository) {
+			CustomerRepository customerRepository) {
 		this.saleRepository = saleRepository;
 		this.userRepository = userRepository;
 		this.customerRepository = customerRepository;
-		this.discountRepository = discountRepository;
 	}
 
 	public Sale createSale(SaleDto saleDto) {
@@ -44,24 +42,29 @@ public class SaleService {
 		Customer customer = customerRepository.findById(saleDto.getCustomerId())
 				.orElseThrow(() -> new IllegalArgumentException("Invalid customer ID: " + saleDto.getCustomerId()));
 
-		Discount discount = null;
-		if (saleDto.getDiscountId() != null) {
-			discount = discountRepository.findById(saleDto.getDiscountId())
-					.orElseThrow(() -> new IllegalArgumentException("Invalid discount ID: " + saleDto.getDiscountId()));
-		}
+		
+
+		BigDecimal discountAmount = saleDto.getDiscountAmount() != null ? saleDto.getDiscountAmount() : BigDecimal.ZERO;
 
 		Sale sale = new Sale();
 		sale.setUserId(staff);
 		sale.setCustomer(customer);
-		sale.setDiscount(discount);
-		sale.setTotalAmount(saleDto.getTotalAmount());
-		sale.setTaxRate(saleDto.getTaxRate());
-		sale.setFinalAmount(saleDto.getFinalAmount());
+	
 		sale.setPaymentMode(saleDto.getPaymentMode());
 		sale.setPaymentStatus(saleDto.getPaymentStatus());
+		sale.setBillType(saleDto.getBillType());
+		sale.setSaleType(saleDto.getSaleType());
 		sale.setTransactionId(saleDto.getTransactionId());
+		sale.setSaleDate(LocalDate.now());
+		Sale savedSale = saleRepository.save(sale);
 
-		return saleRepository.save(sale);
+		BigDecimal totalAmount = savedSale.getTotalAmount() != null ? savedSale.getTotalAmount() : BigDecimal.ZERO;
+		BigDecimal finalAmount = totalAmount.subtract(discountAmount);
+		
+		savedSale.setFinalAmount(finalAmount);
+
+		return saleRepository.save(savedSale);
+
 	}
 
 	public List<SaleDto> getAllSales() {
@@ -74,8 +77,8 @@ public class SaleService {
 		return mapToDto(sale);
 	}
 
-	public SaleDto updateSale( SaleDto saleDto) {
-	
+	public SaleDto updateSale(SaleDto saleDto) {
+
 		Sale sale = saleRepository.findById(saleDto.getSaleId())
 				.orElseThrow(() -> new IllegalArgumentException("Sale not found with ID: " + saleDto.getSaleId()));
 
@@ -91,10 +94,7 @@ public class SaleService {
 			sale.setCustomer(customer);
 		}
 
-		if (saleDto.getDiscountId() != null) {
-			Discount discount = discountRepository.findById(saleDto.getDiscountId()).orElse(null); // optional
-			sale.setDiscount(discount);
-		}
+		
 
 		sale.setTotalAmount(saleDto.getTotalAmount());
 		sale.setTaxRate(saleDto.getTaxRate());
@@ -112,19 +112,42 @@ public class SaleService {
 				.orElseThrow(() -> new IllegalArgumentException("Sale not found with ID: " + id));
 		saleRepository.delete(sale);
 	}
+	
+	public Sale applyDiscount(Long saleId, BigDecimal discountAmount) {
+	    Sale sale = saleRepository.findById(saleId)
+	            .orElseThrow(() -> new IllegalArgumentException("Invalid sale ID: " + saleId));
+
+	    BigDecimal totalAmount = sale.getTotalAmount() != null ? sale.getTotalAmount() : BigDecimal.ZERO;
+
+	    sale.setDiscount(discountAmount);
+
+	    BigDecimal finalAmount = totalAmount.subtract(discountAmount);
+	    sale.setFinalAmount(finalAmount);
+
+	    return saleRepository.save(sale);
+	}
+
+
 
 	private SaleDto mapToDto(Sale sale) {
+
 		SaleDto saleDto = new SaleDto();
+
 		saleDto.setSaleId(sale.getSaleId());
 		saleDto.setStaffId(sale.getUserId() != null ? sale.getUserId().getUserId() : null);
 		saleDto.setCustomerId(sale.getCustomer() != null ? sale.getCustomer().getCustomerId() : null);
-		saleDto.setDiscountId(sale.getDiscount() != null ? sale.getDiscount().getDiscountId() : null);
+		saleDto.setDiscountAmount(sale.getDiscount());
 		saleDto.setTotalAmount(sale.getTotalAmount());
 		saleDto.setTaxRate(sale.getTaxRate());
 		saleDto.setFinalAmount(sale.getFinalAmount());
 		saleDto.setPaymentMode(sale.getPaymentMode());
 		saleDto.setPaymentStatus(sale.getPaymentStatus());
 		saleDto.setTransactionId(sale.getTransactionId());
+		saleDto.setSaleType(sale.getSaleType());
+		saleDto.setBillType(sale.getBillType());
+		
+		
+
 		return saleDto;
 	}
 }

@@ -8,6 +8,7 @@ import com.app.billingapi.repository.ProductRepository;
 import com.app.billingapi.repository.SaleItemRepository;
 import com.app.billingapi.repository.SaleRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,9 +25,8 @@ public class SaleItemService {
 	private final SaleRepository saleRepository;
 	private final ProductRepository productRepository;
 
-	public SaleItemService(SaleItemRepository saleItemRepository,
-	                       SaleRepository saleRepository,
-	                       ProductRepository productRepository) {
+	public SaleItemService(SaleItemRepository saleItemRepository, SaleRepository saleRepository,
+			ProductRepository productRepository) {
 		this.saleItemRepository = saleItemRepository;
 		this.saleRepository = saleRepository;
 		this.productRepository = productRepository;
@@ -41,15 +41,37 @@ public class SaleItemService {
 		Product product = productRepository.findById(dto.getProductId())
 				.orElseThrow(() -> new IllegalArgumentException("Invalid product ID: " + dto.getProductId()));
 
+		BigDecimal price = product.getPurchasePrice();
+		BigDecimal quantity = dto.getQuantity();
+		BigDecimal discount = dto.getDiscount() != null ? dto.getDiscount() : BigDecimal.ZERO;
+		BigDecimal taxRate = product.getTaxRate() != null ? product.getTaxRate() : BigDecimal.ZERO;
+		BigDecimal grossAmount = price.multiply(quantity);
+		BigDecimal taxAmount = grossAmount.multiply(taxRate).divide(BigDecimal.valueOf(100));
+		BigDecimal total = price.multiply(quantity).subtract(discount);
+
 		SaleItem item = new SaleItem();
 		item.setSaleId(sale);
 		item.setProduct(product);
-		item.setQuantity(dto.getQuantity());
-		item.setPrice(dto.getPrice());
-		item.setTax(dto.getTax());
-		item.setTotal(dto.getTotal());
+		item.setQuantity(quantity);
+		item.setPrice(price);
+		item.setDiscount(dto.getDiscount());
+		item.setTax(taxAmount);
+		item.setTotal(total);
 
-		return saleItemRepository.save(item);
+		SaleItem savedItem = saleItemRepository.save(item);
+
+		List<SaleItem> allItems = saleItemRepository.findBySaleId_SaleId(sale.getSaleId());
+
+		BigDecimal totalAmount = allItems.stream().map(SaleItem::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+		BigDecimal totalTaxAmount = allItems.stream().map(SaleItem::getTax).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		sale.setTotalAmount(totalAmount);
+		sale.setFinalAmount(totalAmount);
+		sale.setTaxRate(totalTaxAmount);
+
+		saleRepository.save(sale);
+		return savedItem;
+
 	}
 
 	public List<SaleItemDto> getAllSaleItems() {
@@ -92,16 +114,18 @@ public class SaleItemService {
 		saleItemRepository.delete(item);
 	}
 
-	private SaleItemDto mapToDto(SaleItem item) {
+	public SaleItemDto mapToDto(SaleItem item) {
+
 		SaleItemDto dto = new SaleItemDto();
+
 		dto.setSaleItemId(item.getInvoiceItemId());
 		dto.setSaleId(item.getSaleId() != null ? item.getSaleId().getSaleId() : null);
 		dto.setProductId(item.getProduct() != null ? item.getProduct().getProductId() : null);
 		dto.setQuantity(item.getQuantity());
 		dto.setPrice(item.getPrice());
 		dto.setTax(item.getTax());
+		dto.setDiscount(item.getDiscount());
 		dto.setTotal(item.getTotal());
 		return dto;
 	}
 }
-

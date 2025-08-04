@@ -21,94 +21,92 @@ import jakarta.persistence.Table;
 @Table(name = "shop_subscription")
 public class ShopSubscription implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    @Column(name = "subscriptionid", nullable = false)
-	    private Long subscriptionId;
 
-	    @OneToOne
-	    @JoinColumn(name = "shopid", referencedColumnName = "shopid", nullable = false)
-	    private Shop shop;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "subscriptionid", nullable = false)
+	private Long subscriptionId;
 
-	    @ManyToOne
-	    @JoinColumn(name = "planid", referencedColumnName = "planid", nullable = false)
-	    private SubscriptionPlan subscriptionPlan;
+	@OneToOne
+	@JoinColumn(name = "shopid", referencedColumnName = "shopid", nullable = false, unique = true)
+	private Shop shop;
 
-	    @Column(name = "startdate", nullable = false)
-	    private LocalDate startDate;
 
-	    @Column(name = "enddate", nullable = true) // NULL if lifetime plan
-	    private LocalDate endDate;
+	@ManyToOne
+	@JoinColumn(name = "planid", referencedColumnName = "planid", nullable = false)
+	private SubscriptionPlan subscriptionPlan;
 
-	    @Enumerated(EnumType.STRING)
-	    @Column(name = "paymentstatus", nullable = false)
-	    private PaymentStatus paymentStatus; // PAID, UNPAID, EXPIRED
+	@Column(name = "startdate", nullable = false)
+	private LocalDate startDate;
 
-	    @Column(name = "renewalreminder", nullable = false)
-	    private Boolean renewalReminder = true;
+	@Column(name = "enddate", nullable = true) // NULL if lifetime plan
+	private LocalDate endDate;
 
-		public Long getSubscriptionId() {
-			return subscriptionId;
-		}
+	@Enumerated(EnumType.STRING)
+	@Column(name = "paymentstatus", nullable = false)
+	private PaymentStatus paymentStatus; // PAID, UNPAID, EXPIRED
 
-		public void setSubscriptionId(Long subscriptionId) {
-			this.subscriptionId = subscriptionId;
-		}
+	@Column(name = "renewalreminder", nullable = false)
+	private Boolean renewalReminder = true;
 
-		public Shop getShop() {
-			return shop;
-		}
+	public Long getSubscriptionId() {
+		return subscriptionId;
+	}
 
-		public void setShop(Shop shop) {
-			this.shop = shop;
-		}
+	public void setSubscriptionId(Long subscriptionId) {
+		this.subscriptionId = subscriptionId;
+	}
 
-		public SubscriptionPlan getSubscriptionPlan() {
-			return subscriptionPlan;
-		}
+	public Shop getShop() {
+		return shop;
+	}
 
-		public void setSubscriptionPlan(SubscriptionPlan subscriptionPlan) {
-			this.subscriptionPlan = subscriptionPlan;
-		}
+	public void setShop(Shop shop) {
+		this.shop = shop;
+	}
 
-		public LocalDate getStartDate() {
-			return startDate;
-		}
+	public SubscriptionPlan getSubscriptionPlan() {
+		return subscriptionPlan;
+	}
 
-		public void setStartDate(LocalDate startDate) {
-			this.startDate = startDate;
-		}
+	public void setSubscriptionPlan(SubscriptionPlan subscriptionPlan) {
+		this.subscriptionPlan = subscriptionPlan;
+	}
 
-		public LocalDate getEndDate() {
-			return endDate;
-		}
+	public LocalDate getStartDate() {
+		return startDate;
+	}
 
-		public void setEndDate(LocalDate endDate) {
-			this.endDate = endDate;
-		}
+	public void setStartDate(LocalDate startDate) {
+		this.startDate = startDate;
+	}
 
-		public PaymentStatus getPaymentStatus() {
-			return paymentStatus;
-		}
+	public LocalDate getEndDate() {
+		return endDate;
+	}
 
-		public void setPaymentStatus(PaymentStatus paymentStatus) {
-			this.paymentStatus = paymentStatus;
-		}
+	public void setEndDate(LocalDate endDate) {
+		this.endDate = endDate;
+	}
 
-		public Boolean getRenewalReminder() {
-			return renewalReminder;
-		}
+	public PaymentStatus getPaymentStatus() {
+		return paymentStatus;
+	}
 
-		public void setRenewalReminder(Boolean renewalReminder) {
-			this.renewalReminder = renewalReminder;
-		}
+	public void setPaymentStatus(PaymentStatus paymentStatus) {
+		this.paymentStatus = paymentStatus;
+	}
 
-		public ShopSubscription() {
-			
-		}
-	    
-	    
-	    
+	public Boolean getRenewalReminder() {
+		return renewalReminder;
+	}
+
+	public void setRenewalReminder(Boolean renewalReminder) {
+		this.renewalReminder = renewalReminder;
+	}
+
+	public ShopSubscription() {
+
+	}
 
 }

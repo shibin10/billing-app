@@ -1,141 +1,225 @@
 package com.app.billingapi.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 import com.app.billingapi.enums.PaymentMode;
 import com.app.billingapi.enums.PaymentStatus;
 
 public class InvoiceDto {
 
-    private Long invoiceId;
-    private Long customerId;
-    private Long shopId;
-    private Long salesId;
-    private Long discountId;
-    private Long userId; // Logged-in user who generated the invoice
-    private BigDecimal totalAmount;
-    private BigDecimal tax;
-    private Date dueDate;
-    private PaymentStatus paymentStatus;
-    private PaymentMode paymentMode;
-    private String remark;
-    private ShopDto shop;
+	private Long invoiceId;
+	private String invoiceNo;
+	private LocalDate invoiceDate;
+	private Long customerId;
+	 private String customerName; 
 
-    public InvoiceDto() {}
+	private Long salesId;
+	private Long shopId;
+	private BigDecimal discount;
+	private Long staffId;
+    private String staffName; 
+	private BigDecimal totalAmount;
+	private BigDecimal amountPaid;
+	private BigDecimal tax;
+	private Date dueDate;
+	private PaymentStatus paymentStatus;
+	private PaymentMode paymentMode;
+	private String remark;
 
-    public InvoiceDto(Long invoiceId, Long customerId, Long shopId, Long salesId, Long discountId, 
-                      Long userId, BigDecimal totalAmount, BigDecimal tax, Date dueDate, 
-                      PaymentStatus paymentStatus, PaymentMode paymentMode, String remark) {
-        this.invoiceId = invoiceId;
-        this.customerId = customerId;
-        this.shopId = shopId;
-        this.salesId = salesId;
-        this.discountId = discountId;
-        this.userId = userId;
-        this.totalAmount = totalAmount;
-        this.tax = tax;
-        this.dueDate = dueDate;
-        this.paymentStatus = paymentStatus;
-        this.paymentMode = paymentMode;
-        this.remark = remark;
-    }
+	private String billType;
+	private String saleType;
+	private String transactionId;
+	
+	private List<SaleItemDto> saleItems;
+	private ShopDto shop;
+	private SaleDto sales;
+	private CustomerDto customer;
+	
+	 
+	public InvoiceDto() {
+	}
 
-    public Long getInvoiceId() {
-        return invoiceId;
-    }
+	public BigDecimal getAmountPaid() {
+		return amountPaid;
+	}
 
-    public void setInvoiceId(Long invoiceId) {
-        this.invoiceId = invoiceId;
-    }
+	public void setAmountPaid(BigDecimal amountPaid) {
+		this.amountPaid = amountPaid;
+	}
 
-    public Long getCustomerId() {
-        return customerId;
-    }
+	public Long getInvoiceId() {
+		return invoiceId;
+	}
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
+	public void setInvoiceId(Long invoiceId) {
+		this.invoiceId = invoiceId;
+	}
 
-    public Long getShopId() {
-        return shopId;
-    }
+	public String getInvoiceNo() {
+		return invoiceNo;
+	}
 
-    public void setShopId(Long shopId) {
-        this.shopId = shopId;
-    }
+	public void setInvoiceNo(String invoiceNo) {
+		this.invoiceNo = invoiceNo;
+	}
 
-    public Long getSalesId() {
-        return salesId;
-    }
+	public Long getCustomerId() {
+		return customerId;
+	}
+	
 
-    public void setSalesId(Long salesId) {
-        this.salesId = salesId;
-    }
+	public void setCustomerId(Long customerId) {
+		this.customerId = customerId;
+	}
 
-    public Long getDiscountId() {
-        return discountId;
-    }
+	
+	
+	public CustomerDto getCustomer() {
+		return customer;
+	}
 
-    public void setDiscountId(Long discountId) {
-        this.discountId = discountId;
-    }
+	public void setCustomer(CustomerDto customer) {
+		this.customer = customer;
+	}
 
-    public Long getUserId() {
-        return userId;
-    }
+	public String getStaffName() {
+		return staffName;
+	}
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+	public void setStaffName(String staffName) {
+		this.staffName = staffName;
+	}
 
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
+	public String getCustomerName() {
+		return customerName;
+	}
 
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
 
-    public BigDecimal getTax() {
-        return tax;
-    }
+	public Long getShopId() {
+		return shopId;
+	}
 
-    public void setTax(BigDecimal tax) {
-        this.tax = tax;
-    }
+	public void setShopId(Long shopId) {
+		this.shopId = shopId;
+	}
 
-    public Date getDueDate() {
-        return dueDate;
-    }
+	public Long getSalesId() {
+		return salesId;
+	}
 
-    public void setDueDate(Date dueDate) {
-        this.dueDate = dueDate;
-    }
+	public void setSalesId(Long salesId) {
+		this.salesId = salesId;
+	}
 
-    public PaymentStatus getPaymentStatus() {
-        return paymentStatus;
-    }
+	public BigDecimal getDiscount() {
+		return discount;
+	}
 
-    public void setPaymentStatus(PaymentStatus paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
+	public void setDiscount(BigDecimal discount) {
+		this.discount = discount;
+	}
 
-    public PaymentMode getPaymentMode() {
-        return paymentMode;
-    }
+	public Long getStaffId() {
+		return staffId;
+	}
 
-    public void setPaymentMode(PaymentMode paymentMode) {
-        this.paymentMode = paymentMode;
-    }
+	public void setStaffId(Long staffId) {
+		this.staffId = staffId;
+	}
 
-    public String getRemark() {
-        return remark;
-    }
+	public LocalDate getInvoiceDate() {
+		return invoiceDate;
+	}
 
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
+	public void setInvoiceDate(LocalDate invoiceDate) {
+		this.invoiceDate = invoiceDate;
+	}
+
+	public List<SaleItemDto> getSaleItems() {
+		return saleItems;
+	}
+
+	public void setSaleItems(List<SaleItemDto> saleItems) {
+		this.saleItems = saleItems;
+	}
+
+	public String getBillType() {
+		return billType;
+	}
+
+	public void setBillType(String billType) {
+		this.billType = billType;
+	}
+
+	public String getSaleType() {
+		return saleType;
+	}
+
+	public void setSaleType(String saleType) {
+		this.saleType = saleType;
+	}
+
+	public String getTransactionId() {
+		return transactionId;
+	}
+
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
+	}
+
+	public BigDecimal getTotalAmount() {
+		return totalAmount;
+	}
+
+	public void setTotalAmount(BigDecimal totalAmount) {
+		this.totalAmount = totalAmount;
+	}
+
+	public BigDecimal getTax() {
+		return tax;
+	}
+
+	public void setTax(BigDecimal tax) {
+		this.tax = tax;
+	}
+
+	public Date getDueDate() {
+		return dueDate;
+	}
+
+	public void setDueDate(Date dueDate) {
+		this.dueDate = dueDate;
+	}
+
+	public PaymentStatus getPaymentStatus() {
+		return paymentStatus;
+	}
+
+	public void setPaymentStatus(PaymentStatus paymentStatus) {
+		this.paymentStatus = paymentStatus;
+	}
+
+	public PaymentMode getPaymentMode() {
+		return paymentMode;
+	}
+
+	public void setPaymentMode(PaymentMode paymentMode) {
+		this.paymentMode = paymentMode;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 
 	public ShopDto getShop() {
 		return shop;
@@ -144,7 +228,16 @@ public class InvoiceDto {
 	public void setShop(ShopDto shop) {
 		this.shop = shop;
 	}
-    
-    
-}
 
+	public SaleDto getSales() {
+		return sales;
+	}
+
+	public void setSales(SaleDto sales) {
+		this.sales = sales;
+	}
+
+
+	
+
+}

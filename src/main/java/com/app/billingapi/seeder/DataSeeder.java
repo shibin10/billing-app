@@ -29,13 +29,14 @@ public class DataSeeder implements CommandLineRunner {
     	if (roleRepository.count() > 0) {
 	        return;
 	    }
-    	Map<String, String> roles = Map.of(
-    	        "ROLE_ADMIN", "Administrator with full access",
-    	        "ROLE_USER", "Regular user with limited access",
-    	        "ROLE_OWNER", "SHOP OWNERS",
-    	        "ROLE_MANAGER", "Manager with advanced permissions",
-    	        "ROLE_APPLICATION", "System application role"
-    	    );
+    	Map<String, String> roles = new LinkedHashMap<>();
+    	roles.put("ROLE_ADMIN", "Administrator with full access");
+    	roles.put("ROLE_USER", "Regular user with limited access");
+    	roles.put("ROLE_OWNER", "Shop Owners");
+    	roles.put("ROLE_STAFF", "Shop Staffs");
+    	roles.put("ROLE_MANAGER", "Manager with advanced permissions");
+    	roles.put("ROLE_APPLICATION", "System application role");
+
 
     	for (Map.Entry<String, String> entry : roles.entrySet()) {
             String roleName = entry.getKey();

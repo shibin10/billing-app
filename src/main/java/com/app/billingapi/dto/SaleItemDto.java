@@ -10,7 +10,9 @@ public class SaleItemDto {
     private BigDecimal quantity;
     private BigDecimal price;
     private BigDecimal tax;
+    private BigDecimal discount;
     private BigDecimal total;
+    private ProductDto product;
 
 
     public Long getSaleItemId() {
@@ -41,11 +43,21 @@ public class SaleItemDto {
         return quantity;
     }
 
+    
     public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 
-    public BigDecimal getPrice() {
+    
+    public ProductDto getProduct() {
+		return product;
+	}
+
+	public void setProduct(ProductDto product) {
+		this.product = product;
+	}
+
+	public BigDecimal getPrice() {
         return price;
     }
 
@@ -68,5 +80,15 @@ public class SaleItemDto {
     public void setTotal(BigDecimal total) {
         this.total = total;
     }
+
+	public BigDecimal getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(BigDecimal discount) {
+		this.discount = discount;
+	}
+    
+    
 }
 

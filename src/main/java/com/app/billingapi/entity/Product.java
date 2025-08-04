@@ -41,8 +41,8 @@ public class Product implements Serializable {
 	@Column(name = "quantity", nullable = false)
 	private Integer quantity;
 
-	@Column(name = "ourprice", nullable = false)
-	private BigDecimal ourPrice;
+	@Column(name = "purchaseprice", nullable = false)
+	private BigDecimal purchasePrice;
 
 	@Column(name = "wholesalerate", nullable = true)
 	private BigDecimal wholesaleRate;
@@ -159,12 +159,14 @@ public class Product implements Serializable {
 		this.quantity = quantity;
 	}
 
-	public BigDecimal getOurPrice() {
-		return ourPrice;
+	
+
+	public BigDecimal getPurchasePrice() {
+		return purchasePrice;
 	}
 
-	public void setOurPrice(BigDecimal ourPrice) {
-		this.ourPrice = ourPrice;
+	public void setPurchasePrice(BigDecimal purchasePrice) {
+		this.purchasePrice = purchasePrice;
 	}
 
 	public BigDecimal getWholesaleRate() {
@@ -244,9 +246,9 @@ public class Product implements Serializable {
 	}
 
 	public Product(Long productId, String productNumber, Long hsn, String name, String description, Integer quantity,
-			BigDecimal ourPrice, BigDecimal wholesaleRate, BigDecimal retailRate, BigDecimal taxRate, String category,
-			String imageUrl, Date expiry, String barcode, BigDecimal cgst, BigDecimal sgst, Shop shopId, Date createdAt,
-			Date updatedAt) {
+			BigDecimal purchasePrice, BigDecimal wholesaleRate, BigDecimal retailRate, BigDecimal taxRate,
+			String category, String imageUrl, Date expiry, String barcode, BigDecimal cgst, BigDecimal sgst,
+			Shop shopId, Date createdAt, Date updatedAt) {
 		super();
 		this.productId = productId;
 		this.productNumber = productNumber;
@@ -254,7 +256,7 @@ public class Product implements Serializable {
 		this.name = name;
 		this.description = description;
 		this.quantity = quantity;
-		this.ourPrice = ourPrice;
+		this.purchasePrice = purchasePrice;
 		this.wholesaleRate = wholesaleRate;
 		this.retailRate = retailRate;
 		this.taxRate = taxRate;
@@ -268,5 +270,7 @@ public class Product implements Serializable {
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
+
+
 
 }

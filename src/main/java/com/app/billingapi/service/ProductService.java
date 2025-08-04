@@ -1,14 +1,12 @@
 package com.app.billingapi.service;
 
-import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.billingapi.dto.ProductDto;
@@ -21,6 +19,7 @@ import com.app.billingapi.exception.ProductNotFoundException;
 import com.app.billingapi.exception.UserIllegalArgumentException;
 import com.app.billingapi.repository.ProductRepository;
 import com.app.billingapi.repository.ShopRepository;
+import com.app.billingapi.util.JwtUtils;
 
 @Service
 public class ProductService {
@@ -28,94 +27,49 @@ public class ProductService {
 	private final ProductRepository productRepository;
 	private final ShopRepository shopRepository;
 	private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
+	@Autowired
+	private JwtUtils jwtUtils;
 
 	public ProductService(ProductRepository productRepository, ShopRepository shopRepository) {
 		this.productRepository = productRepository;
 		this.shopRepository = shopRepository;
 	}
 
-	public Product saveProduct(ProductDto productDto) {
+	public Product saveProduct(ProductDto productDto, String token) {
 
-		Shop shop = shopRepository.findById(productDto.getShopId())
-				.orElseThrow(() -> new IllegalArgumentException("Invalid Shop Id: " + productDto.getShopId()));
+		Long shopId = jwtUtils.extractShopId(token);
+		Shop shop = shopRepository.findById(shopId)
+				.orElseThrow(() -> new IllegalArgumentException("Invalid shop ID: " + shopId));
 
-		logger.info("Save product: {}", productDto);
-		
-		
-			
-			if (productDto.getName() == null || productDto.getName().trim().isEmpty()) {
-				throw new UserIllegalArgumentException("Missing product name", "Product name is required", 400);
-			}
-			if (productDto.getDescription() != null && productDto.getDescription().length() > 1000) {
-				throw new UserIllegalArgumentException("Description too long",
-						"Product description exceeds the maximum allowed length", 400);
-			}
-			if (productDto.getQuantity() <= 0) {
-				throw new UserIllegalArgumentException("Invalid quantity", "Quantity cannot be negative", 400);
-			}
-			if (productDto.getImageUrl() != null && !productDto.getImageUrl().trim().isEmpty()) {
-				try {
-					new URL(productDto.getImageUrl());
-				} catch (MalformedURLException e) {
-					throw new UserIllegalArgumentException("Invalid image URL", "Image URL is malformed", 400);
-				}
-			}
+		boolean productNumberExists = productRepository.existsByProductNumberIgnoreCaseAndShopId(productDto.getProductNumber(), shop);
 
-			if (productDto.getOurPrice() == null || productDto.getOurPrice().compareTo(BigDecimal.ZERO) < 0) {
-				throw new UserIllegalArgumentException("Invalid our price",
-						"Our price must be provided and cannot be negative", 400);
-			}
-			if (productDto.getWholesaleRate() == null || productDto.getWholesaleRate().compareTo(BigDecimal.ZERO) < 0) {
-				throw new UserIllegalArgumentException("Invalid wholesale rate",
-						"Wholesale rate must be provided and cannot be negative", 400);
-			}
-			if (productDto.getRetailRate() == null || productDto.getRetailRate().compareTo(BigDecimal.ZERO) < 0) {
-				throw new UserIllegalArgumentException("Invalid retail rate",
-						"Retail rate must be provided and cannot be negative", 400);
-			}
-			if (productDto.getTaxRate() == null || productDto.getTaxRate().compareTo(BigDecimal.ZERO) < 0) {
-				throw new UserIllegalArgumentException("Invalid tax rate",
-						"Tax rate must be provided and cannot be negative", 400);
-			}
-			if (productDto.getWholesaleRate().compareTo(productDto.getRetailRate()) > 0) {
-				throw new UserIllegalArgumentException("Invalid pricing",
-						"Wholesale rate cannot be greater than retail rate", 400);
-			}
-
-			if (productDto.getOurPrice().compareTo(productDto.getWholesaleRate()) >= 0
-					|| productDto.getOurPrice().compareTo(productDto.getRetailRate()) >= 0) {
-				throw new UserIllegalArgumentException("Invalid our price",
-						"Our price must be less than both wholesale and retail rates", 400);
-			}
-			if (productDto.getCategory() == null || productDto.getCategory().trim().isEmpty()) {
-				throw new UserIllegalArgumentException("Missing category", "Product category is required", 400);
-			}
-				
-			try {
-			Product product = new Product();
-	        product.setName(productDto.getName());
-	        product.setProductNumber(productDto.getProductNumber());
-	        product.setHsn(productDto.getHsn());
-	        product.setDescription(productDto.getDescription());
-	        product.setQuantity(productDto.getQuantity());
-	        product.setOurPrice(productDto.getOurPrice());
-	        product.setWholesaleRate(productDto.getWholesaleRate());
-	        product.setRetailRate(productDto.getRetailRate());
-	        product.setTaxRate(productDto.getTaxRate());
-	        product.setCgst(productDto.getCGST());
-	        product.setSgst(productDto.getSGST());
-	        product.setCategory(productDto.getCategory());
-	        product.setImageUrl(productDto.getImageUrl());
-	        product.setExpiry(productDto.getExpiry());
-	        product.setBarcode(productDto.getBarcode());
-			product.setShopId(shop);
-			
-			return productRepository.save(product);
-			
-		} catch (Exception e) {
-			logger.error("Error saving product: {}", productDto, e);
-			throw new RuntimeException("Error saving product", e);
+		if (productNumberExists) {
+		    throw new UserIllegalArgumentException(
+		        "Product with ProductNumber '" + productDto.getProductNumber() + "' already exists in this shop.",
+		        "Duplicate Product Number",
+		        409 
+		    );
 		}
+
+		Product product = new Product();
+		product.setName(productDto.getName());
+		product.setProductNumber(productDto.getProductNumber());
+		product.setHsn(productDto.getHsn());
+		product.setDescription(productDto.getDescription());
+		product.setQuantity(productDto.getQuantity());
+		product.setPurchasePrice(productDto.getPurchasePrice());
+		product.setWholesaleRate(productDto.getWholesaleRate());
+		product.setRetailRate(productDto.getRetailRate());
+		product.setTaxRate(productDto.getTaxRate());
+		product.setCgst(productDto.getCGST());
+		product.setSgst(productDto.getSGST());
+		product.setCategory(productDto.getCategory());
+		product.setImageUrl(productDto.getImageUrl());
+		product.setExpiry(productDto.getExpiry());
+		product.setBarcode(productDto.getBarcode());
+		product.setShopId(shop);
+		return productRepository.save(product);
+
 	}
 
 	public boolean existsByName(String name) {
@@ -123,67 +77,67 @@ public class ProductService {
 	}
 
 	public List<ProductDto> findAllProducts() {
-	    List<Product> products = productRepository.findAll();
+		List<Product> products = productRepository.findAll();
 
-	
-	    return products.stream()
-                .map(this::mapToProductDto)
-                .collect(Collectors.toList());
+		return products.stream().map(this::mapToProductDto).collect(Collectors.toList());
 	}
 
 	public ProductDto updateProduct(ProductDto productDto) {
 		logger.info("Updating product: {}", productDto);
 		try {
-			
+
 			Product product = productRepository.findById(productDto.getProductId())
 					.orElseThrow(() -> new ProductNotFoundException(
 							"Product not found with ID: " + productDto.getProductId(),
 							"Please provide valid Product details.", 404));
-			
 
 			Shop shop = shopRepository.findById(productDto.getShopId())
 					.orElseThrow(() -> new IllegalArgumentException("Invalid Shop Id: " + productDto.getShopId()));
 
-
 			product.setName(productDto.getName());
-	        product.setProductNumber(productDto.getProductNumber());
-	        product.setHsn(productDto.getHsn());
-	        product.setDescription(productDto.getDescription());
-	        product.setQuantity(productDto.getQuantity());
-	        product.setOurPrice(productDto.getOurPrice());
-	        product.setWholesaleRate(productDto.getWholesaleRate());
-	        product.setRetailRate(productDto.getRetailRate());
-	        product.setTaxRate(productDto.getTaxRate());
-	        product.setCgst(productDto.getCGST());
-	        product.setSgst(productDto.getSGST());
-	        product.setCategory(productDto.getCategory());
-	        product.setImageUrl(productDto.getImageUrl());
-	        product.setExpiry(productDto.getExpiry());
-	        product.setBarcode(productDto.getBarcode());
-	        product.setShopId(shop);
-	        
-	        Product products = productRepository.save(product);
-			
+			product.setProductNumber(productDto.getProductNumber());
+			product.setHsn(productDto.getHsn());
+			product.setDescription(productDto.getDescription());
+			product.setQuantity(productDto.getQuantity());
+			product.setPurchasePrice(productDto.getPurchasePrice());
+			product.setWholesaleRate(productDto.getWholesaleRate());
+			product.setRetailRate(productDto.getRetailRate());
+			product.setTaxRate(productDto.getTaxRate());
+			product.setCgst(productDto.getCGST());
+			product.setSgst(productDto.getSGST());
+			product.setCategory(productDto.getCategory());
+			product.setImageUrl(productDto.getImageUrl());
+			product.setExpiry(productDto.getExpiry());
+			product.setBarcode(productDto.getBarcode());
+			product.setShopId(shop);
+
+			Product products = productRepository.save(product);
+
 			return mapToProductDto(products);
 
+		} catch (ProductNotFoundException e) {
+			logger.warn("Product update failed: {}", e.getMessage(), e);
+			throw e;
+		} catch (IllegalArgumentException e) {
+			logger.warn("Invalid input while updating product: {}", e.getMessage(), e);
+			throw e;
 		} catch (Exception e) {
-			logger.error("Error updating product: {}", productDto, e);
+			logger.error("Unexpected error occurred while updating product ID: {}", productDto.getProductId(), e);
 			throw new RuntimeException("Error updating product", e);
 		}
 
 	}
 
 	public ProductDto findProductById(Long productId) {
-	    Optional<Product> productOpt = productRepository.findById(productId);
-	    if (productOpt.isPresent()) {
-	        System.out.println("Fetched Product: " + productOpt.get()); // should not be null
-	        return mapToProductDto(productOpt.get());
-	    } else {
-	        System.out.println("Product not found with ID: " + productId);
-	        return null;
-	    }
+		Optional<Product> productOpt = productRepository.findById(productId);
+		if (productOpt.isPresent()) {
+			System.out.println("Fetched Product: " + productOpt.get()); // should not be null
+			return mapToProductDto(productOpt.get());
+		} else {
+			System.out.println("Product not found with ID: " + productId);
+			return null;
+		}
 	}
-
 
 	public ProductDto deleteProductById(Long productId) {
 		logger.info("Deleting product by ID: {}", productId);
@@ -213,7 +167,7 @@ public class ProductService {
 		productDto.setHsn(product.getHsn());
 		productDto.setDescription(product.getDescription());
 		productDto.setQuantity(product.getQuantity());
-		productDto.setOurPrice(product.getOurPrice());
+		productDto.setPurchasePrice(product.getPurchasePrice());
 		productDto.setWholesaleRate(product.getWholesaleRate());
 		productDto.setRetailRate(product.getRetailRate());
 		productDto.setTaxRate(product.getTaxRate());
@@ -234,7 +188,7 @@ public class ProductService {
 			shopDto.setMap(shop.getMap());
 			productDto.setShop(shopDto);
 
-			User user = shop.getOwnerId();
+			User user = shop.getOwner();
 			if (user != null) {
 				SignupUserDto userDto = new SignupUserDto();
 				userDto.setUserId(user.getUserId());

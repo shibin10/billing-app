@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +25,7 @@ import com.app.billingapi.entity.User;
 import com.app.billingapi.enums.UserStatus;
 import com.app.billingapi.exception.UserNotFoundException;
 import com.app.billingapi.repository.UserRepository;
+import com.app.billingapi.service.JwtService;
 import com.app.billingapi.service.UserService;
 
 import jakarta.validation.Valid;
@@ -35,13 +37,20 @@ import java.util.Optional;
 @RequestMapping("/users")
 @RestController
 public class UserController {
+	
 	private final UserService userService;
+	
 	@Autowired
 	UserRepository userRepository;
+	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
 	@Autowired
 	private JavaMailSender mailSender;
+	
+	@Autowired
+	private  JwtService jwtService;
 
 	public UserController(UserService userService) {
 		this.userService = userService;
@@ -75,12 +84,6 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
 		}
 
-		// Check roles and permissions
-		boolean isAdmin = loggedInUser.getRoles().stream().anyMatch(role -> role.getRoleName().equals("ADMIN"));
-
-//		if (!isAdmin && !loggedInUser.getUserId().equals(userId)) {
-//			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to update this user");
-//		}
 
 		try {
 			User updatedUser = userService.updateUser(userDto);
@@ -168,4 +171,30 @@ public class UserController {
 
 		return ResponseEntity.ok("Password reset successfully");
 	}
+	
+	@PostMapping("/shop/staff")
+    public ResponseEntity<?> createStaff(@RequestBody @Valid SignupUserDto signupUserDto,
+                                            @RequestHeader("Authorization") String token) {
+        Long ownerId = extractUserIdFromToken(token);
+        User createdStaff = userService.createStaffForOwner(ownerId, signupUserDto);
+        return ResponseEntity.ok(userService.mapUserToDto(createdStaff));
+    }
+
+    private Long extractUserIdFromToken(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        // Use your JWT utility here
+        return jwtService.extractUserId(token); // Replace with your actual token utility method
+    }
+
+    
+    @GetMapping("/shop/getstaff")
+    public ResponseEntity<?> getStaffByShop(@RequestHeader("Authorization") String token) {
+        Long ownerId = extractUserIdFromToken(token);
+        List<SignupUserDto> staffList = userService.getStaffByShopOwner(ownerId);
+        return ResponseEntity.ok(staffList);
+    }
+
+	
 }

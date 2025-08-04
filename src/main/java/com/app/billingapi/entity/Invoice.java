@@ -1,6 +1,7 @@
 package com.app.billingapi.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,46 +27,55 @@ public class Invoice {
 	@Column(name = "invoiceid")
 	private Long invoiceId;
 
+	@Column(name = "invoiceNo")
+	private String invoiceNo;
+
+	@Column(name = "invoiceDate")
+	private LocalDate invoiceDate;
+
 	@ManyToOne
-	@JoinColumn(name = "customerid", referencedColumnName = "customerid")
+	@JoinColumn(name = "customerid", referencedColumnName = "customerid", nullable = true)
 	private Customer customerId;
 
 	@ManyToOne
 	@JoinColumn(name = "shopid", referencedColumnName = "shopid")
 	private Shop shopId;
-	
-	
+
 	@ManyToOne
 	@JoinColumn(name = "saleid", referencedColumnName = "saleid")
 	private Sale salesId;
 
-	@ManyToOne
-	@JoinColumn(name = "discountid", referencedColumnName = "discountid")
-	private Discount discountId;
-	
+
+
 	@ManyToOne
 	@JoinColumn(name = "loggedinuserid", referencedColumnName = "userid")
 	private User userId;
 
-
-	@Column(name = "totalamount")
+	@Column(name = "totalamount",  nullable = true)
 	private BigDecimal totalAmount;
-	
-	@Column(name = "tax")
+
+	@Column(name = "amountPaid", nullable = true)
+	private BigDecimal amountPaid;
+
+	@Column(name = "tax",nullable = true)
 	private BigDecimal tax;
 	
-	@Column(name = "duedate")
+	@Column(name = "discount",nullable = true)
+	private BigDecimal discount;
+
+	@Column(name = "duedate",nullable = true)
 	private Date dueDate;
 
 	@Column(name = "paymentstatus")
+
 	private PaymentStatus paymentStatus;
 
 	@Column(name = "paymentmode")
 	private PaymentMode paymentMode;
 
-	@Column(name = "remark")
+	@Column(name = "remark", nullable = true)
 	private String remark;
-	
+
 	@CreationTimestamp
 	@Column(updatable = false, name = "createdat")
 	private Date createdAt;
@@ -80,6 +90,22 @@ public class Invoice {
 
 	public void setInvoiceId(Long invoiceId) {
 		this.invoiceId = invoiceId;
+	}
+
+	public String getInvoiceNo() {
+		return invoiceNo;
+	}
+
+	public void setInvoiceNo(String invoiceNo) {
+		this.invoiceNo = invoiceNo;
+	}
+
+	public LocalDate getInvoiceDate() {
+		return invoiceDate;
+	}
+
+	public void setInvoiceDate(LocalDate invoiceDate) {
+		this.invoiceDate = invoiceDate;
 	}
 
 	public Customer getCustomerId() {
@@ -106,8 +132,6 @@ public class Invoice {
 		this.shopId = shopId;
 	}
 
-
-
 	public Sale getSalesId() {
 		return salesId;
 	}
@@ -116,13 +140,6 @@ public class Invoice {
 		this.salesId = salesId;
 	}
 
-	public Discount getDiscountId() {
-		return discountId;
-	}
-
-	public void setDiscountId(Discount discountId) {
-		this.discountId = discountId;
-	}
 
 	public Date getDueDate() {
 		return dueDate;
@@ -164,6 +181,14 @@ public class Invoice {
 		this.totalAmount = totalAmount;
 	}
 
+	public BigDecimal getAmountPaid() {
+		return amountPaid;
+	}
+
+	public void setAmountPaid(BigDecimal amountPaid) {
+		this.amountPaid = amountPaid;
+	}
+
 	public PaymentStatus getPaymentStatus() {
 		return paymentStatus;
 	}
@@ -187,10 +212,19 @@ public class Invoice {
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
 	}
+	
+	
+
+	public BigDecimal getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(BigDecimal discount) {
+		this.discount = discount;
+	}
 
 	public Invoice() {
 
 	}
-
 
 }

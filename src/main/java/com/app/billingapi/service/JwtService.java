@@ -55,9 +55,18 @@ public class JwtService {
 
 			extraClaims.put("roleId", user.getRoles().get(0).getRoleId());
 			extraClaims.put("roleName", roleName);
-		}
+
+
+		     if (("ROLE_STAFF".equalsIgnoreCase(roleName) || "ROLE_OWNER".equalsIgnoreCase(roleName)) 
+		                && user.getShops() != null && !user.getShops().isEmpty()) {
+		            Long shopId = user.getShops().get(0).getShopId(); // Use first shopId for the user
+		            extraClaims.put("shopId", shopId);
+		        }
+		    }
+
 		extraClaims.put("userId", user.getUserId());
 		extraClaims.put("fullName", user.getFullName());
+		
 
 		return buildToken(extraClaims, userDetails, jwtExpiration);
 	}
@@ -68,10 +77,7 @@ public class JwtService {
 
 	private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
 
-		return Jwts.builder()
-				.setClaims(extraClaims)
-				.setSubject(userDetails
-						.getUsername())
+		return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
 				.setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis() + expiration))
 				.signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();
@@ -95,6 +101,11 @@ public class JwtService {
 	public String extractRoleId(String token) {
 		Claims claims = extractAllClaims(token);
 		return claims.get("roleId", String.class); // Extract roleId
+	}
+
+	public Long extractShopId(String token) {
+		Claims claims = extractAllClaims(token);
+		return claims.get("shopId", Long.class);
 	}
 
 	public String extractRoleName(String token) {

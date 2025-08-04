@@ -1,7 +1,6 @@
 package com.app.billingapi.controller;
 
 import com.app.billingapi.dto.InvoiceDto;
-import com.app.billingapi.entity.Invoice;
 import com.app.billingapi.service.InvoiceService;
 
 import jakarta.validation.Valid;
@@ -22,16 +21,21 @@ public class InvoiceController {
 
 	@PostMapping("/add")
 	public ResponseEntity<?> addInvoice(@RequestBody @Valid InvoiceDto invoiceDto) {
+		
 		try {
-		Invoice invoice = invoiceService.saveInvoice(invoiceDto);
-		return ResponseEntity.ok("Invoice created successfully with ID: " + invoice.getInvoiceId());
+			InvoiceDto invoice = invoiceService.saveInvoice(invoiceDto);
+			
+			return ResponseEntity
+			            .status(HttpStatus.CREATED)
+			            .body(invoice);
+		
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} catch (Exception ex) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Failed to create Invoice. Reason: " + ex.getMessage());
 		}
-		}
+	}
 
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllInvoices() {
@@ -43,7 +47,7 @@ public class InvoiceController {
 	}
 
 	@GetMapping("/{invoiceId}")
-	public ResponseEntity<?> getInvoiceById(@PathVariable Long invoiceId) {
+	public ResponseEntity<?> getInvoiceById(@PathVariable("invoiceId") Long invoiceId) {
 		InvoiceDto invoice = invoiceService.findInvoiceById(invoiceId);
 		if (invoice == null) {
 			return ResponseEntity.notFound().build();
@@ -53,7 +57,7 @@ public class InvoiceController {
 
 	@PostMapping("/update/{invoiceId}")
 	public ResponseEntity<?> updateInvoice(@PathVariable Long invoiceId, @RequestBody @Valid InvoiceDto invoiceDto) {
-		
+
 		if (!invoiceId.equals(invoiceDto.getInvoiceId())) {
 			return ResponseEntity.badRequest().body("Invoice ID mismatch.");
 		}
@@ -63,7 +67,8 @@ public class InvoiceController {
 
 	@DeleteMapping("/delete/{invoiceId}")
 	public ResponseEntity<?> deleteInvoice(@PathVariable Long invoiceId) {
-		invoiceService.deleteInvoice(invoiceId);
-		return ResponseEntity.ok("Invoice deleted successfully.");
+	    invoiceService.deleteInvoice(invoiceId);
+	    return ResponseEntity.ok("Invoice deleted successfully");
 	}
+
 }

@@ -98,4 +98,16 @@ public class SubscriptionPlan implements Serializable {
 
 	}
 
+	public SubscriptionPlan(Long planId, PlanType planName, BigDecimal price, Integer duration, String features,
+			Date createdAt) {
+	
+		this.planId = planId;
+		this.planName = planName;
+		this.price = price;
+		this.duration = duration;
+		this.features = features;
+		this.createdAt = createdAt;
+	}
+
+	
 }

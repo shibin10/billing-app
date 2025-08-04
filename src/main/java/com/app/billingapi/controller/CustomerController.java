@@ -30,9 +30,8 @@ public class CustomerController {
 	public ResponseEntity<?> addCustomer(@RequestBody CustomerDto customerDto) {
 		
 		
-		if (customerService.existsByPlace(customerDto.getPlace())) {
-			return ResponseEntity.badRequest().body("Customer already exists");
-		}
+	
+		
 		if (customerService.existsByPhone(customerDto.getPhone())) {
 			return ResponseEntity.badRequest().body("Phone Number already exists");
 		}
