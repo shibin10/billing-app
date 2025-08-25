@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.app.billingapi.dto.ProductDto;
@@ -41,14 +42,13 @@ public class ProductService {
 		Shop shop = shopRepository.findById(shopId)
 				.orElseThrow(() -> new IllegalArgumentException("Invalid shop ID: " + shopId));
 
-		boolean productNumberExists = productRepository.existsByProductNumberIgnoreCaseAndShopId(productDto.getProductNumber(), shop);
+		boolean productNumberExists = productRepository
+				.existsByProductNumberIgnoreCaseAndShopId(productDto.getProductNumber(), shop);
 
 		if (productNumberExists) {
-		    throw new UserIllegalArgumentException(
-		        "Product with ProductNumber '" + productDto.getProductNumber() + "' already exists in this shop.",
-		        "Duplicate Product Number",
-		        409 
-		    );
+			throw new UserIllegalArgumentException(
+					"Product with ProductNumber '" + productDto.getProductNumber() + "' already exists in this shop.",
+					"Duplicate Product Number", 409);
 		}
 
 		Product product = new Product();
@@ -141,17 +141,25 @@ public class ProductService {
 
 	public ProductDto deleteProductById(Long productId) {
 		logger.info("Deleting product by ID: {}", productId);
+
 		try {
 			Optional<Product> optionalProduct = productRepository.findById(productId);
 			if (optionalProduct.isPresent()) {
 				Product product = optionalProduct.get();
-				productRepository.delete(product);
 
+				productRepository.delete(product);
 				return mapToProductDto(product);
+
 			} else {
 
 				return null;
 			}
+		} catch (DataIntegrityViolationException ex) {
+			logger.error("Cannot delete product with ID: {} due to related records", productId, ex);
+
+			throw new UserIllegalArgumentException("Cannot delete product because it is already used in an Invoice",
+					"Product Deletion Not Allowed", 400);
+
 		} catch (Exception e) {
 			logger.error("Error deleting product by ID: {}", productId, e);
 			throw new RuntimeException("Error deleting product", e);
@@ -204,5 +212,17 @@ public class ProductService {
 		return productDto;
 
 	}
+
+
+	public boolean isProductNumberExists(String productNumber, Long shopId) {
+	    Shop shop = shopRepository.findById(shopId)
+	            .orElseThrow(() -> new UserIllegalArgumentException(
+	                    "Shop with ID '" + shopId + "' not found.",
+	                    "Shop Not Found",
+	                    404
+	            ));
+	    return productRepository.existsByProductNumberIgnoreCaseAndShopId(productNumber, shop);
+	}
+
 
 }

@@ -100,7 +100,7 @@ public class InvoiceService {
 
 			BigDecimal grossAmount = price.multiply(quantity);
 			BigDecimal taxAmount = grossAmount.multiply(taxRate).divide(BigDecimal.valueOf(100));
-			BigDecimal total = grossAmount.subtract(itemDiscount);
+			BigDecimal total = grossAmount.subtract(itemDiscount).add(taxAmount);
 
 			SaleItem item = new SaleItem();
 			item.setSaleId(savedSale);
@@ -184,24 +184,124 @@ public class InvoiceService {
 		return invoiceRepository.findById(id).map(this::mapToInvoiceDto)
 				.orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with ID: " + id, "Invalid ID", 404));
 	}
-
+	
+	@Transactional
 	public InvoiceDto updateInvoice(InvoiceDto invoiceDto) {
-		logger.info("Updating invoice ID: {}", invoiceDto.getInvoiceId());
+		logger.info("Updating invoice with ID: {}", invoiceDto.getInvoiceId());
 
 		Invoice invoice = invoiceRepository.findById(invoiceDto.getInvoiceId())
-				.orElseThrow(() -> new InvoiceNotFoundException("Invoice not found", "Invalid invoice ID", 404));
+				.orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
 
-		invoice.setTotalAmount(invoiceDto.getTotalAmount());
-		invoice.setAmountPaid(invoiceDto.getAmountPaid());
+		Sale existingSale = invoice.getSalesId();
+
+		Customer customer = customerRepository.findById(invoiceDto.getCustomerId())
+				.orElseThrow(() -> new IllegalArgumentException("Invalid customer ID"));
+
+		Shop shop = shopRepository.findById(invoiceDto.getShopId())
+				.orElseThrow(() -> new IllegalArgumentException("Invalid shop ID"));
+
+		String loggedInEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+		User staff = userRepository.findByEmail(loggedInEmail)
+				.orElseThrow(() -> new IllegalArgumentException("Logged in user not found"));
+
+		BigDecimal roundOff = invoiceDto.getDiscount() != null ? invoiceDto.getDiscount() : BigDecimal.ZERO;
+
+		// Delete old sale items
+		List<SaleItem> existingItems = saleItemRepository.findBySaleId_SaleId(existingSale.getSaleId());
+		for (SaleItem item : existingItems) {
+			saleItemRepository.delete(item);
+		}
+
+		// Reset totals
+		BigDecimal totalItemDiscount = BigDecimal.ZERO;
+		BigDecimal totalAmount = BigDecimal.ZERO;
+		BigDecimal totalTax = BigDecimal.ZERO;
+
+		// Add new sale items
+		for (SaleItemDto itemDto : invoiceDto.getSaleItems()) {
+
+			Product product = productRepository.findById(itemDto.getProductId())
+					.orElseThrow(() -> new IllegalArgumentException("Invalid product ID: " + itemDto.getProductId()));
+
+			BigDecimal price = product.getRetailRate();
+			BigDecimal quantity = itemDto.getQuantity();
+			BigDecimal itemDiscount = itemDto.getDiscount() != null ? itemDto.getDiscount() : BigDecimal.ZERO;
+			BigDecimal taxRate = product.getTaxRate() != null ? product.getTaxRate() : BigDecimal.ZERO;
+
+			BigDecimal grossAmount = price.multiply(quantity);
+			BigDecimal taxAmount = grossAmount.multiply(taxRate).divide(BigDecimal.valueOf(100));
+			BigDecimal total = grossAmount.subtract(itemDiscount).add(taxAmount);
+
+			SaleItem item = new SaleItem();
+			item.setSaleId(existingSale);
+			item.setProduct(product);
+			item.setQuantity(quantity);
+			item.setPrice(price);
+			item.setDiscount(itemDiscount);
+			item.setTax(taxAmount);
+			item.setTotal(total);
+
+			saleItemRepository.save(item);
+
+			totalItemDiscount = totalItemDiscount.add(itemDiscount);
+			totalAmount = totalAmount.add(total);
+			totalTax = totalTax.add(taxAmount);
+		}
+
+		// Update Sale
+		BigDecimal finalAmount = totalAmount.subtract(roundOff);
+		existingSale.setCustomer(customer);
+		existingSale.setShopId(shop);
+		existingSale.setPaymentMode(invoiceDto.getPaymentMode());
+		existingSale.setPaymentStatus(invoiceDto.getPaymentStatus());
+		existingSale.setBillType(BillType.valueOf(invoiceDto.getBillType().toUpperCase()));
+		existingSale.setSaleType(SaleType.valueOf(invoiceDto.getSaleType().toUpperCase()));
+		existingSale.setTransactionId(invoiceDto.getTransactionId());
+		existingSale.setDiscount(roundOff);
+		existingSale.setSaleDate(LocalDate.now());
+		existingSale.setTotalAmount(totalAmount);
+		existingSale.setFinalAmount(finalAmount);
+		existingSale.setTaxRate(totalTax);
+		existingSale.setUserId(staff);
+
+		saleRepository.save(existingSale);
+
+		// Update Invoice
+		invoice.setInvoiceDate(invoiceDto.getInvoiceDate());
+		invoice.setCustomerId(customer);
+		invoice.setShopId(shop);
+		invoice.setSalesId(existingSale);
+		invoice.setDiscount(totalItemDiscount.add(roundOff));
+		invoice.setUserId(staff);
+		invoice.setTotalAmount(finalAmount);
+		invoice.setTax(totalTax);
 		invoice.setDueDate(invoiceDto.getDueDate());
-		invoice.setPaymentStatus(invoiceDto.getPaymentStatus());
+
+		if (invoiceDto.getDueDate() != null) {
+			invoice.setPaymentStatus(PaymentStatus.PENDING);
+		} else {
+			invoice.setPaymentStatus(invoiceDto.getPaymentStatus());
+		}
+
 		invoice.setPaymentMode(invoiceDto.getPaymentMode());
 		invoice.setRemark(invoiceDto.getRemark());
+		invoice.setAmountPaid(invoiceDto.getAmountPaid());
 
-		Invoice invoices = invoiceRepository.save(invoice);
+		Invoice updatedInvoice = invoiceRepository.save(invoice);
 
-		return mapToInvoiceDto(invoices);
+		// Update Customer Loyalty (optional: adjust based on business rules)
+		BigDecimal currentSpend = customer.getTotalSpend() != null ? customer.getTotalSpend() : BigDecimal.ZERO;
+		Integer currentPts = customer.getLoyaltyPoints() != null ? customer.getLoyaltyPoints() : 0;
+
+		customer.setTotalSpend(currentSpend.add(finalAmount)); // Adjust if needed
+		int earnedPts = finalAmount.divide(BigDecimal.valueOf(100), RoundingMode.FLOOR).intValue();
+		customer.setLoyaltyPoints(currentPts + earnedPts);
+
+		customerRepository.save(customer);
+
+		return mapToInvoiceDto(updatedInvoice);
 	}
+
 
 	@Transactional
 	public void deleteInvoice(Long invoiceId) {

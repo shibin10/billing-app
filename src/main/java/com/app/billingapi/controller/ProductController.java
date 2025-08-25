@@ -1,7 +1,9 @@
 package com.app.billingapi.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.billingapi.dto.ProductDto;
@@ -93,5 +96,19 @@ public class ProductController {
 			return ResponseEntity.ok().body(productDto);
 		}
 	}
+	
+	 @GetMapping("/product-number-exist")
+	    public ResponseEntity<Map<String, Object>> checkProductNumber(
+	            @RequestParam String productNumber,
+	            @RequestParam Long shopId) {
+
+	        boolean exists = productService.isProductNumberExists(productNumber, shopId);
+
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("productNumber", productNumber);
+	        response.put("exists", exists);
+
+	        return ResponseEntity.ok(response);
+	    }
 
 }
