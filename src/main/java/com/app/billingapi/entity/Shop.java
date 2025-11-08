@@ -31,17 +31,20 @@ public class Shop implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "shopid", nullable = false)
-	private Long shopId;	
+	private Long shopId;
 
 	@Column(name = "address", nullable = false)
 	private String address;
-	
+
 	@Column(name = "name", nullable = false)
 	private String name;
 
+	@Column(name = "description", nullable = false)
+	private String description;
+
 	@Column(name = "place", nullable = false)
 	private String place;
-	
+
 	@Column(name = "gstno", nullable = false)
 	private String gstNo;
 
@@ -50,10 +53,10 @@ public class Shop implements Serializable {
 
 	@Column(name = "map", nullable = true)
 	private String map;
-	
+
 	@Column(name = "phone", nullable = true)
 	private String phone;
-	
+
 	@Column(name = "logo", nullable = true)
 	private String logo;
 
@@ -71,7 +74,6 @@ public class Shop implements Serializable {
 	@ManyToMany(mappedBy = "shops")
 	private List<User> users = new ArrayList<>();
 
-	
 	@CreationTimestamp
 	@Column(updatable = false, name = "createdat")
 	private Date createdAt;
@@ -115,7 +117,6 @@ public class Shop implements Serializable {
 		this.gstNo = gstNo;
 	}
 
-	
 	public String getPhone() {
 		return phone;
 	}
@@ -123,8 +124,6 @@ public class Shop implements Serializable {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-	
-	
 
 	public List<User> getUsers() {
 		return users;
@@ -166,7 +165,13 @@ public class Shop implements Serializable {
 		this.map = map;
 	}
 
-	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	public User getOwner() {
 		return owner;
@@ -208,29 +213,26 @@ public class Shop implements Serializable {
 		this.updatedAt = updatedAt;
 	}
 
-	public Shop(Long shopId, String name, String place, String gstNo, ShopStatus status, String map, String phone,
-			String logo, User owner, SubscriptionPlan subscriptionPlanId, ShopSubscription shopSubscription,
-			Date createdAt, Date updatedAt) {
+	public Shop(Long shopId, String address, String name, String description, String place, String gstNo,
+			ShopStatus status, String map, String phone, String logo, User owner, SubscriptionPlan subscriptionPlanId,
+			ShopSubscription shopSubscription, List<User> users, Date createdAt, Date updatedAt) {
 		super();
 		this.shopId = shopId;
+		this.address = address;
 		this.name = name;
+		this.description = description;
 		this.place = place;
 		this.gstNo = gstNo;
 		this.status = status;
 		this.map = map;
 		this.phone = phone;
 		this.logo = logo;
-		this.owner= owner;
+		this.owner = owner;
 		this.subscriptionPlanId = subscriptionPlanId;
 		this.shopSubscription = shopSubscription;
+		this.users = users;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
-
-	
-
-
-
-
 
 }

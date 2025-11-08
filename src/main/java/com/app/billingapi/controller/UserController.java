@@ -102,6 +102,11 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage()); // Correct
 		}
 	}
+	
+    @GetMapping("/me")
+    public ResponseEntity<SignupUserDto> getCurrentUser() {
+        return ResponseEntity.ok(userService.getCurrentUser());
+    }
 
 	@DeleteMapping("delete/{userId}")
 	public ResponseEntity<Void> softDeleteEntity(@PathVariable Long userId) {

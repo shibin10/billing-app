@@ -12,15 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.billingapi.dto.CustomerReportDto;
 import com.app.billingapi.dto.DiscountSummaryDto;
 import com.app.billingapi.dto.InventoryMovementDto;
+import com.app.billingapi.dto.ProductSalesReportDto;
 import com.app.billingapi.dto.ProfitSummaryDto;
 import com.app.billingapi.dto.SalesSummaryDto;
 import com.app.billingapi.dto.TimeInsightDto;
 import com.app.billingapi.dto.TopCustomerDto;
 import com.app.billingapi.dto.TopProductDto;
 import com.app.billingapi.entity.Product;
+import com.app.billingapi.service.CustomerReportService;
 import com.app.billingapi.service.ReportService;
+import com.app.billingapi.service.SalesReportService;
 
 @RestController
 @RequestMapping("/reports")
@@ -28,6 +32,10 @@ public class ReportController {
 
 	@Autowired
 	private ReportService reportService;
+	@Autowired
+	private CustomerReportService customerReportService;
+	@Autowired
+	private SalesReportService salesReportService;
 
 	@GetMapping("/shop/{shopId}/top-products")
 	public List<TopProductDto> getTopProducts(@PathVariable Long shopId) {
@@ -48,7 +56,6 @@ public class ReportController {
 		return reportService.getSalesSummary(shopId, from, to, period);
 	}
 
-	
 	@GetMapping("/shop/{shopId}/discount-summary")
 	public List<DiscountSummaryDto> getDiscountSummary(@PathVariable Long shopId,
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -69,25 +76,53 @@ public class ReportController {
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
 		return reportService.getTimeInsights(shopId, from, to);
 	}
-	
-	@GetMapping("/shop/{shopId}/dead-stock")
-	public List<Product> getDeadStock(
-	    @PathVariable Long shopId,
-	    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-	    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
 
-	    return reportService.getDeadStockProducts(shopId, from, to);
+	@GetMapping("/shop/{shopId}/dead-stock")
+	public List<Product> getDeadStock(@PathVariable Long shopId,
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+
+		return reportService.getDeadStockProducts(shopId, from, to);
 	}
 
 	@GetMapping("/profit")
 	public ResponseEntity<ProfitSummaryDto> getProfitSummary(
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+
+		ProfitSummaryDto summary = reportService.getProfitBetweenDates(from, to);
+		return ResponseEntity.ok(summary);
+	}
+
+	@GetMapping("/customer/{customerId}")
+	public CustomerReportDto getCustomerReport(
+	        @PathVariable Long customerId,
 	        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
 	        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
 
-	    ProfitSummaryDto summary = reportService.getProfitBetweenDates(from, to);
-	    return ResponseEntity.ok(summary);
+	    System.out.println("Controller hit with ID: " + customerId + ", From: " + from + ", To: " + to);
+	    return customerReportService.generateCustomerReport(customerId, from, to);
 	}
+	  @GetMapping("/customer/all")
+	    public ResponseEntity<List<CustomerReportDto>> getAllCustomerReports(
+	            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+	            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+	        return ResponseEntity.ok(customerReportService.generateAllCustomersReport(from, to));
+	    }
+	  @GetMapping("/hsn/all")
+	  public ResponseEntity<List<ProductSalesReportDto>> getAllSalesReports(
+	          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+	          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+	      return ResponseEntity.ok(salesReportService.getAllSalesReportsByDate(from, to));
+	  }
 
+	  @GetMapping("/hsn/{hsn}")
+	  public ResponseEntity<ProductSalesReportDto> getReportByHsn(
+	          @PathVariable String hsn,
+	          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+	          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+	      return ResponseEntity.ok(salesReportService.getSalesReportByHsnAndDate(hsn, from, to));
+	  }
 
-
+	 
 }

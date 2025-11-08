@@ -11,6 +11,7 @@ public class ProductDto {
 	private Long hsn;
 	private String name;
 	private String description;
+	private String location;
 	private Integer quantity;
 	private BigDecimal purchasePrice;
 	private BigDecimal wholesaleRate;
@@ -30,23 +31,26 @@ public class ProductDto {
 	public ProductDto() {
 	}
 
-	public ProductDto(Long productId, String productNumber, Long hsn, String name, String description, Integer quantity,
-			BigDecimal purchasePrice, BigDecimal wholesaleRate, BigDecimal retailRate, BigDecimal taxRate,
-			BigDecimal CGST, BigDecimal SGST, String category, String imageUrl, Date expiry, String barcode,
-			Long shopId, ShopDto shop, Date createdAt, Date updatedAt) {
+	
+
+	public ProductDto(Long productId, String productNumber, Long hsn, String name, String description, String location,
+			Integer quantity, BigDecimal purchasePrice, BigDecimal wholesaleRate, BigDecimal retailRate,
+			BigDecimal taxRate, BigDecimal cGST, BigDecimal sGST, String category, String imageUrl, Date expiry,
+			String barcode, Long shopId, ShopDto shop, Date createdAt, Date updatedAt) {
 		super();
 		this.productId = productId;
 		this.productNumber = productNumber;
 		this.hsn = hsn;
 		this.name = name;
 		this.description = description;
+		this.location = location;
 		this.quantity = quantity;
 		this.purchasePrice = purchasePrice;
 		this.wholesaleRate = wholesaleRate;
 		this.retailRate = retailRate;
 		this.taxRate = taxRate;
-		this.CGST = CGST;
-		this.SGST = SGST;
+		CGST = cGST;
+		SGST = sGST;
 		this.category = category;
 		this.imageUrl = imageUrl;
 		this.expiry = expiry;
@@ -56,6 +60,8 @@ public class ProductDto {
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
+
+
 
 	public Long getProductId() {
 		return productId;
@@ -87,6 +93,15 @@ public class ProductDto {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	public Integer getQuantity() {

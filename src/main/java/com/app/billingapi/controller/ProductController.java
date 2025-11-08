@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,8 +52,12 @@ public class ProductController {
 
 	 
 	@GetMapping("/all")
-	public ResponseEntity<?> getAllProduct() {
-		List<ProductDto> product = productService.findAllProducts();
+	public ResponseEntity<?> getAllProduct(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size)  {
+		
+		Page<ProductDto> product = productService.findAllProducts(page, size);
+		
 		if (product.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Products Found");
 		} else {

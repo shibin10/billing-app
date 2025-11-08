@@ -135,6 +135,8 @@ public class AuthenticationService {
 		logger.info("Found {} users.", users.size());
 		return users;
 	}
+	
+	
 
 	public boolean existsByPhone(String phone) {
 		logger.debug("Checking if user exists with phone: {}", phone);

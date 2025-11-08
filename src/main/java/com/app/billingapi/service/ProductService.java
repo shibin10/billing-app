@@ -1,13 +1,15 @@
 package com.app.billingapi.service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.app.billingapi.dto.ProductDto;
@@ -54,6 +56,7 @@ public class ProductService {
 		Product product = new Product();
 		product.setName(productDto.getName());
 		product.setProductNumber(productDto.getProductNumber());
+		product.setLocation(productDto.getLocation());
 		product.setHsn(productDto.getHsn());
 		product.setDescription(productDto.getDescription());
 		product.setQuantity(productDto.getQuantity());
@@ -76,10 +79,19 @@ public class ProductService {
 		return productRepository.existsByName(name);
 	}
 
-	public List<ProductDto> findAllProducts() {
-		List<Product> products = productRepository.findAll();
+	public Page<ProductDto> findAllProducts(int page, int size) {
 
-		return products.stream().map(this::mapToProductDto).collect(Collectors.toList());
+		try {
+			Pageable pageable = PageRequest.of(page, size, Sort.by("productId").descending());
+
+			Page<Product> products = productRepository.findAll(pageable);
+
+			return products.map(this::mapToProductDto);
+		
+		} catch (Exception e) {
+			logger.error("Error fetching invoices", e);
+			throw new RuntimeException("Failed to fetch invoices", e);
+		}
 	}
 
 	public ProductDto updateProduct(ProductDto productDto) {
@@ -96,6 +108,7 @@ public class ProductService {
 
 			product.setName(productDto.getName());
 			product.setProductNumber(productDto.getProductNumber());
+			product.setLocation(productDto.getLocation());
 			product.setHsn(productDto.getHsn());
 			product.setDescription(productDto.getDescription());
 			product.setQuantity(productDto.getQuantity());
@@ -172,6 +185,7 @@ public class ProductService {
 		productDto.setProductId(product.getProductId());
 		productDto.setName(product.getName());
 		productDto.setProductNumber(product.getProductNumber());
+		productDto.setLocation(product.getLocation());
 		productDto.setHsn(product.getHsn());
 		productDto.setDescription(product.getDescription());
 		productDto.setQuantity(product.getQuantity());
@@ -213,16 +227,11 @@ public class ProductService {
 
 	}
 
-
 	public boolean isProductNumberExists(String productNumber, Long shopId) {
-	    Shop shop = shopRepository.findById(shopId)
-	            .orElseThrow(() -> new UserIllegalArgumentException(
-	                    "Shop with ID '" + shopId + "' not found.",
-	                    "Shop Not Found",
-	                    404
-	            ));
-	    return productRepository.existsByProductNumberIgnoreCaseAndShopId(productNumber, shop);
+		Shop shop = shopRepository.findById(shopId)
+				.orElseThrow(() -> new UserIllegalArgumentException("Shop with ID '" + shopId + "' not found.",
+						"Shop Not Found", 404));
+		return productRepository.existsByProductNumberIgnoreCaseAndShopId(productNumber, shop);
 	}
-
 
 }
