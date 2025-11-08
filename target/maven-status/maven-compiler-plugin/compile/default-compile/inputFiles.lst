@@ -11,6 +11,7 @@ D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\enums\ShopStatus.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\entity\User.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\repository\InvoiceItemRepository.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\service\SaleItemService.java
+D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\service\SalesReportService.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\dto\ForgotPasswordDto.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\dto\TaxSummaryDto.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\dto\SalesSummaryDto.java
@@ -51,11 +52,14 @@ D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\repository\ShopReposi
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\exception\CustomerNotFoundException.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\repository\SaleItemRepository.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\controller\SaleItemController.java
+D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\exception\SalesReportNotFoundException.java
+D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\dto\CustomerReportDto.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\exception\UserBadRequest.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\dto\CouponDto.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\entity\Product.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\enums\SaleType.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\dto\ChangePasswordDto.java
+D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\dto\ProductSalesReportDto.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\dto\InventoryMovementDto.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\controller\SaleController.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\repository\ProductRepository.java
@@ -63,6 +67,7 @@ D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\service\FileStorageSe
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\config\JwtAuthenticationFilter.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\util\JwtUtils.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\dto\TimeInsightDto.java
+D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\service\CustomerReportService.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\entity\Country.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\dto\InvoiceItemDto.java
 D:\APPS\Billing sofwtware\src\main\java\com\app\billingapi\repository\PasswordResetTokenRepository.java

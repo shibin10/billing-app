@@ -8,6 +8,7 @@ public class ShopDto implements Serializable {
 	static final long serialVersionUID = 1L;
 	private Long shopId;
 	private String name;
+	private String description;
 	private String address;
 	private String place;
 	private ShopStatus status;
@@ -55,6 +56,14 @@ public class ShopDto implements Serializable {
 	}
 
 	
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	public String getAddress() {
 		return address;

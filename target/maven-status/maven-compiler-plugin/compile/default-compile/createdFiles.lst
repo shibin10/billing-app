@@ -18,6 +18,7 @@ com\app\billingapi\exception\UserBadCredential.class
 com\app\billingapi\dto\SubscriptionPlanDto.class
 com\app\billingapi\exception\InvoiceNotFoundException.class
 com\app\billingapi\service\SaleItemService.class
+com\app\billingapi\dto\CustomerReportDto.class
 com\app\billingapi\dto\ShopSubscriptionDto.class
 com\app\billingapi\service\RoleService.class
 com\app\billingapi\service\SaleService.class
@@ -26,6 +27,7 @@ com\app\billingapi\config\SecurityConfiguration.class
 com\app\billingapi\controller\SubscriptionPlanController.class
 com\app\billingapi\entity\Country.class
 com\app\billingapi\enums\RewardType.class
+com\app\billingapi\exception\SalesReportNotFoundException.class
 com\app\billingapi\repository\CountryRepository.class
 com\app\billingapi\exception\UserBadRequest.class
 com\app\billingapi\entity\Customer.class
@@ -45,12 +47,14 @@ com\app\billingapi\entity\Referral.class
 com\app\billingapi\service\UserService.class
 com\app\billingapi\dto\DeadstockDto.class
 com\app\billingapi\dto\SignupUserDto.class
+com\app\billingapi\service\CustomerReportService.class
 com\app\billingapi\controller\ShopController.class
 com\app\billingapi\enums\PaymentMode.class
 com\app\billingapi\service\PushNotificationService.class
 com\app\billingapi\service\ShopService.class
 com\app\billingapi\controller\UserController.class
 com\app\billingapi\exception\GlobalExceptionHandler.class
+com\app\billingapi\service\SalesReportService.class
 com\app\billingapi\dto\DiscountSummaryDto.class
 com\app\billingapi\entity\Coupon.class
 com\app\billingapi\enums\PlanType.class
@@ -95,6 +99,7 @@ com\app\billingapi\repository\SubscriptionPlanRepository.class
 com\app\billingapi\dto\TopCustomerDto.class
 com\app\billingapi\config\FirebaseConfig.class
 com\app\billingapi\BillingApiApplication.class
+com\app\billingapi\dto\ProductSalesReportDto.class
 com\app\billingapi\dto\ProductDto.class
 com\app\billingapi\config\WebConfig.class
 com\app\billingapi\exception\UserIllegalArgumentException.class

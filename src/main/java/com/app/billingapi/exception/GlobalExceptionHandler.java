@@ -62,4 +62,19 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(ex.getStatus()).body(body);
 	}
 
+	@ExceptionHandler(SalesReportNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> handleSalesReportNotFoundException(SalesReportNotFoundException ex,
+			HttpServletRequest request) {
+		
+	Map<String, Object> body = new HashMap<>();
+		
+		body.put("type", "about:blank");
+		body.put("title", ex.getTitle());
+		body.put("status", ex.getStatus());
+		body.put("detail", ex.getMessage());
+		String instance = request.getRequestURI();
+		body.put("instance", instance);
+		
+		return ResponseEntity.status(ex.getStatus()).body(body);
+	}
 }

@@ -76,6 +76,7 @@ public class ShopService {
 
 			Shop shop = new Shop();
 			shop.setName(shopDto.getName());
+			shop.setDescription(shopDto.getDescription());
 			shop.setPlace(shopDto.getPlace());
 			shop.setAddress(shopDto.getAddress());
 			shop.setStatus(ShopStatus.CREATED);
@@ -151,6 +152,7 @@ public class ShopService {
 				Shop shop = optionalShop.get();
 
 				shop.setName(shopDto.getName());
+				shop.setDescription(shopDto.getDescription());
 				shop.setPlace(shopDto.getPlace());
 				shop.setAddress(shopDto.getAddress());
 				shop.setStatus(shopDto.getStatus());
@@ -200,6 +202,7 @@ public class ShopService {
 		ShopDto shopDto = new ShopDto();
 		shopDto.setShopId(shop.getShopId());
 		shopDto.setName(shop.getName());
+		shopDto.setDescription(shop.getDescription());
 		shopDto.setPhone(shop.getPhone());
 		shopDto.setAddress(shop.getAddress());
 		shopDto.setPlace(shop.getPlace());

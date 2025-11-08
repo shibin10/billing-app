@@ -25,7 +25,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @Service
 public class InvoiceService {
@@ -168,16 +174,27 @@ public class InvoiceService {
 		return mapToInvoiceDto(savedInvoice);
 	}
 
-	public List<InvoiceDto> findAllInvoices() {
+	public Page<InvoiceDto> findAllInvoices(int page, int size) {
 		logger.info("Fetching all invoices");
-		try {
-			List<Invoice> invoice =invoiceRepository.findAll();
-			return invoice.stream().map(this::mapToInvoiceDto).collect(Collectors.toList());
-		} catch (Exception e) {
-			logger.error("Error fetching invoices", e);
-			throw new RuntimeException("Failed to fetch invoices", e);
-		}
+
+		 try {
+		        Pageable pageable = PageRequest.of(page, size, Sort.by("invoiceId").descending());
+		        Page<Invoice> invoicePage = invoiceRepository.findAll(pageable);
+
+		        return invoicePage.map(this::mapToInvoiceDto);
+		    } catch (Exception e) {
+		        logger.error("Error fetching invoices", e);
+		        throw new RuntimeException("Failed to fetch invoices", e);
+		    }
 	}
+	
+	public List<InvoiceDto> getInvoicesByProductNumber(String productNumber) {
+	    List<Invoice> invoices = invoiceRepository.findBySalesId_SaleItems_Product_ProductNumber(productNumber);
+	    return invoices.stream()
+	            .map(this::mapToInvoiceDto)
+	            .collect(Collectors.toList());
+	}
+
 
 	public InvoiceDto findInvoiceById(Long id) {
 		logger.info("Finding invoice by ID: {}", id);
@@ -327,8 +344,8 @@ public class InvoiceService {
 	private InvoiceDto mapToInvoiceDto(Invoice invoice) {
 		InvoiceDto dto = new InvoiceDto();
 
-		dto.setInvoiceNo(invoice.getInvoiceNo());
 		dto.setInvoiceId(invoice.getInvoiceId());
+		dto.setInvoiceNo(invoice.getInvoiceNo());
 		dto.setInvoiceDate(invoice.getInvoiceDate());
 		dto.setCustomerId(invoice.getCustomerId().getCustomerId());
 		dto.setCustomerName(invoice.getCustomerId().getName());
@@ -403,6 +420,7 @@ public class InvoiceService {
 		if (shop != null) {
 			ShopDto shopDto = new ShopDto();
 			shopDto.setShopId(shop.getShopId());
+			shopDto.setLogo(shop.getLogo());			
 			shopDto.setName(shop.getName());
 			shopDto.setPlace(shop.getPlace());
 			shopDto.setAddress(shop.getAddress());
@@ -421,8 +439,8 @@ public class InvoiceService {
 				userDto.setPlace(user.getPlace());
 				userDto.setPhone(user.getPhone());
 				userDto.setStatus(user.getStatus());
-
 				shopDto.setOwner(userDto);
+				
 			}
 
 			Customer customer = invoice.getCustomerId();
@@ -456,5 +474,29 @@ public class InvoiceService {
 	    return String.format("INV%04d", nextNumber); // example: INV0482, INV0483...
 	}
 
+	public long getTotalInvoiceCount() {
+	    logger.info("Fetching total invoice count");
+	    try {
+	        return invoiceRepository.count();
+	    } catch (Exception e) {
+	        logger.error("Error fetching invoice count", e);
+	        throw new RuntimeException("Failed to fetch invoice count", e);
+	    }
+	}
+
+	public BigDecimal getTotalInvoiceAmount() {
+	    logger.info("Calculating total invoice amount");
+	    try {
+	        List<Invoice> invoices = invoiceRepository.findAll();
+	        return invoices.stream()
+	                .map(Invoice::getTotalAmount)
+	                .filter(Objects::nonNull)
+	                .reduce(BigDecimal.ZERO, BigDecimal::add);
+	    } catch (Exception e) {
+	        logger.error("Error calculating total invoice amount", e);
+	        throw new RuntimeException("Failed to calculate total invoice amount", e);
+	    }
+	
+	}
 
 }

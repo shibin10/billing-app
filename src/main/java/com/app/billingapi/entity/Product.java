@@ -55,6 +55,9 @@ public class Product implements Serializable {
 
 	@Column(name = "catogory", nullable = true)
 	private String category;
+	
+	@Column(name = "location", nullable = true)
+	private String location;
 
 	@Column(name = "image_url", nullable = true)
 	private String imageUrl;
@@ -135,6 +138,14 @@ public class Product implements Serializable {
 
 	
 	
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
 	public Long getHsn() {
 		return hsn;
 	}
@@ -247,8 +258,8 @@ public class Product implements Serializable {
 
 	public Product(Long productId, String productNumber, Long hsn, String name, String description, Integer quantity,
 			BigDecimal purchasePrice, BigDecimal wholesaleRate, BigDecimal retailRate, BigDecimal taxRate,
-			String category, String imageUrl, Date expiry, String barcode, BigDecimal cgst, BigDecimal sgst,
-			Shop shopId, Date createdAt, Date updatedAt) {
+			String category, String location, String imageUrl, Date expiry, String barcode, BigDecimal cgst,
+			BigDecimal sgst, Shop shopId, Date createdAt, Date updatedAt) {
 		super();
 		this.productId = productId;
 		this.productNumber = productNumber;
@@ -261,6 +272,7 @@ public class Product implements Serializable {
 		this.retailRate = retailRate;
 		this.taxRate = taxRate;
 		this.category = category;
+		this.location = location;
 		this.imageUrl = imageUrl;
 		this.expiry = expiry;
 		this.barcode = barcode;
@@ -271,6 +283,6 @@ public class Product implements Serializable {
 		this.updatedAt = updatedAt;
 	}
 
-
+	
 
 }

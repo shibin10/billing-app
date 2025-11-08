@@ -10,6 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -38,9 +42,13 @@ public class InvoiceController {
 	}
 
 	@GetMapping("/all")
-	public ResponseEntity<?> getAllInvoices() {
-		List<InvoiceDto> invoices = invoiceService.findAllInvoices();
-		if (invoices.isEmpty()) {
+	public ResponseEntity<?> getAllInvoices( 
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		
+		 Page<InvoiceDto> invoices = invoiceService.findAllInvoices(page, size);
+		
+		 if (invoices.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(invoices);
@@ -68,7 +76,25 @@ public class InvoiceController {
 	@DeleteMapping("/delete/{invoiceId}")
 	public ResponseEntity<?> deleteInvoice(@PathVariable Long invoiceId) {
 	    invoiceService.deleteInvoice(invoiceId);
-	    return ResponseEntity.ok("Invoice deleted successfully");
+	    return ResponseEntity.ok("Invoice deleted successfully")	;
 	}
+	
+	@GetMapping("/partno/{productNumber}")
+	public ResponseEntity<List<InvoiceDto>> getInvoicesByProductNumber(@PathVariable String productNumber) {
+	    return ResponseEntity.ok(invoiceService.getInvoicesByProductNumber(productNumber));
+	}
+
+	@GetMapping("/count")
+	public ResponseEntity<?> getInvoiceCount() {
+	    long count = invoiceService.getTotalInvoiceCount();
+	    return ResponseEntity.ok(Collections.singletonMap("totalInvoices", count));
+	}
+	
+	@GetMapping("/total-amount")
+	public ResponseEntity<?> getTotalInvoiceAmount() {
+		BigDecimal  totalAmount = invoiceService.getTotalInvoiceAmount();
+	    return ResponseEntity.ok(Collections.singletonMap("totalAmount", totalAmount));
+	}
+
 
 }

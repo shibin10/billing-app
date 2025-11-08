@@ -35,7 +35,7 @@ public class SecurityConfiguration {
 
 						// ADMIN or OWNER roles
 						.requestMatchers("/sales/*", "/sales-items/*", "/customer/*", "/reports/*", "/invoice/*",
-								"/products/*", "/shop/{shopId}", "/shop/update/*", "/users/add", "/users/shop/staff",
+								"/products/*", "/shop/{shopId}", "/shop/update/*", "/users/add", "/users/me","/users/shop/staff",
 								"/users/shop/getstaff", "/users/delete/*")
 						.hasAnyRole("OWNER", "ADMIN")
 

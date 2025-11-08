@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ import com.app.billingapi.repository.RoleRepository;
 import com.app.billingapi.repository.ShopRepository;
 import com.app.billingapi.repository.UserRepository;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +65,24 @@ public class UserService {
 		}
 	}
 
+
+    public SignupUserDto getCurrentUser() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName(); // usually email/username
+
+            User user = userRepository.findByEmail(username)  // or findByEmail if you use email
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            return mapUserToDto(user);
+
+        } catch (Exception e) {
+            logger.error("Error fetching logged-in user details", e);
+            throw new RuntimeException("Failed to fetch logged-in user", e);
+        }
+    }
+	
+	
 	public User updateUser(SignupUserDto userDto) {
 		logger.info("Updating user with ID: {}", userDto.getUserId());
 		try {
@@ -124,7 +145,7 @@ public class UserService {
 	}
 
 	public String generateOtp() {
-		Random random = new Random();
+		SecureRandom random = new SecureRandom();
 		int otp = 100000 + random.nextInt(900000);
 		return String.valueOf(otp);
 	}

@@ -5,10 +5,12 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,13 +56,56 @@ public class ReportService {
 	private ShopRepository shopRepository;
 
 	public List<TopProductDto> getTopSellingProducts(Long shopId) {
-		List<SaleItem> items = saleItemRepository.findBySaleId_ShopId_ShopId(shopId);
-		return items.stream()
-				.collect(Collectors.groupingBy(i -> i.getProduct().getName(),
-						Collectors.summingDouble(i -> i.getQuantity().doubleValue())))
-				.entrySet().stream().sorted(Map.Entry.<String, Double>comparingByValue().reversed()).limit(5)
-				.map(e -> new TopProductDto(e.getKey(), e.getValue())).collect(Collectors.toList());
+	    List<SaleItem> items = saleItemRepository.findBySaleId_ShopId_ShopId(shopId);
+
+	    // Group by product name and reduce each group into a TopProductDto
+	    Map<String, TopProductDto> aggregated = items.stream()
+	        .collect(Collectors.groupingBy(
+	            si -> si.getProduct().getName(),
+	            Collectors.collectingAndThen(Collectors.toList(), saleItems -> {
+	                // total quantity
+	                BigDecimal totalQty = saleItems.stream()
+	                    .map(SaleItem::getQuantity)
+	                    .filter(Objects::nonNull)
+	                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+	                // subtotal = sum(price * quantity) (price or quantity may be null)
+	                BigDecimal subTotal = saleItems.stream()
+	                    .map(si -> {
+	                        BigDecimal p = si.getPrice() != null ? si.getPrice() : BigDecimal.ZERO;
+	                        BigDecimal q = si.getQuantity() != null ? si.getQuantity() : BigDecimal.ZERO;
+	                        return p.multiply(q);
+	                    })
+	                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+	                // tax sum (use getTax() if you stored tax per SaleItem)
+	                BigDecimal tax = saleItems.stream()
+	                    .map(si -> si.getTax() != null ? si.getTax() : BigDecimal.ZERO)
+	                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+	                // discount sum (per-item discount field)
+	                BigDecimal discount = saleItems.stream()
+	                    .map(si -> si.getDiscount() != null ? si.getDiscount() : BigDecimal.ZERO)
+	                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+	                // finalAmount: you already store final per item as getTotal()
+	                BigDecimal finalAmount = saleItems.stream()
+	                    .map(si -> si.getTotal() != null ? si.getTotal() : BigDecimal.ZERO)
+	                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+	                String productName = saleItems.get(0).getProduct().getName();
+	                return new TopProductDto(productName, totalQty, subTotal, tax, discount, finalAmount, null);
+	            })
+	        ));
+
+	    // Convert to list, sort by finalAmount desc, limit 5
+	    return aggregated.values().stream()
+	        .sorted(Comparator.comparing(TopProductDto::getFinalAmount).reversed())
+	        .limit(5)
+	        .collect(Collectors.toList());
 	}
+
+
 
 	public List<TopCustomerDto> getTopCustomers(Long shopId) {
 		List<Invoice> invoices = invoiceRepository.findByShopId_ShopId(shopId);
