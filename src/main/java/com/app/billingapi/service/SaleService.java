@@ -1,24 +1,33 @@
 package com.app.billingapi.service;
 
 import com.app.billingapi.dto.SaleDto;
+import com.app.billingapi.dto.SaleReportDto;
+import com.app.billingapi.dto.SalesReportResponse;
 import com.app.billingapi.entity.Customer;
+import com.app.billingapi.entity.Invoice;
 import com.app.billingapi.entity.Sale;
 import com.app.billingapi.entity.User;
 import com.app.billingapi.repository.CustomerRepository;
+import com.app.billingapi.repository.InvoiceRepository;
 import com.app.billingapi.repository.SaleRepository;
 import com.app.billingapi.repository.UserRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class SaleService {
+	
+	@Autowired
+	private InvoiceRepository invoiceRepository;
 
 	private static final Logger logger = LoggerFactory.getLogger(SaleService.class);
 
@@ -150,4 +159,47 @@ public class SaleService {
 
 		return saleDto;
 	}
+
+
+
+	
+	public SalesReportResponse getSalesReport(LocalDate startDate, LocalDate endDate) {
+	    List<Sale> sales = saleRepository.findBySaleDateBetween(startDate, endDate);
+
+	    List<SaleReportDto> reportList = new ArrayList<>();
+	    BigDecimal totalFinalAmount = BigDecimal.ZERO;
+	    BigDecimal totalTax = BigDecimal.ZERO;
+	    int invoiceCount = 0;
+
+	    for (Sale sale : sales) {
+	        Invoice invoice = invoiceRepository.findBySalesId(sale).orElse(null);
+
+	        SaleReportDto dto = new SaleReportDto();
+	        dto.setInvoiceNo(invoice != null ? invoice.getInvoiceNo() : "N/A");
+	        dto.setSaleDate(sale.getSaleDate());
+	        dto.setCustomerName(sale.getCustomer().getName());
+	        dto.setTotalAmount(sale.getTotalAmount());
+	        dto.setTax(invoice.getTax());
+	        dto.setFinalAmount(sale.getFinalAmount());
+	        dto.setPaymentStatus(sale.getPaymentStatus());
+
+	        reportList.add(dto);
+
+	        // Sum using BigDecimal safely
+	        if (dto.getFinalAmount() != null) totalFinalAmount = totalFinalAmount.add(dto.getFinalAmount());
+	        if (dto.getTax() != null) totalTax = totalTax.add(dto.getTax());
+	        if (invoice != null) invoiceCount++;
+	    }
+
+	    SalesReportResponse response = new SalesReportResponse();
+	    response.setSales(reportList);
+	    response.setTotalFinalAmount(totalFinalAmount);
+	    response.setTotalTax(totalTax);
+	    response.setInvoiceCount(invoiceCount);
+
+	    return response;
+	}
+
+
+	
 }

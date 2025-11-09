@@ -1,16 +1,19 @@
 package com.app.billingapi.controller;
 
 import com.app.billingapi.dto.SaleDto;
+import com.app.billingapi.dto.SalesReportResponse;
 import com.app.billingapi.entity.Sale;
 import com.app.billingapi.service.SaleService;
 
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -101,5 +104,13 @@ public class SaleController {
 	    return ResponseEntity.ok("Discount applied successfully. Final amount: ₹" + updatedSale.getFinalAmount());
 	}
 
+	@GetMapping("/report")
+	public ResponseEntity<SalesReportResponse> getSalesReport(
+	        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+	        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+	    SalesReportResponse report = saleService.getSalesReport(startDate, endDate);
+	    return ResponseEntity.ok(report);
+	}
 
 }

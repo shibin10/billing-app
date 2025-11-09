@@ -5,14 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.app.billingapi.dto.ShopDto;
 import com.app.billingapi.dto.SignupUserDto;
@@ -27,8 +23,6 @@ import com.app.billingapi.repository.SubscriptionPlanRepository;
 import com.app.billingapi.repository.UserRepository;
 import com.app.billingapi.util.JwtUtils;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 public class ShopService {

@@ -12,6 +12,7 @@ com\app\billingapi\entity\Invoice.class
 com\app\billingapi\util\AuthUtil.class
 com\app\billingapi\repository\InvoiceRepository.class
 com\app\billingapi\config\WebConfig$1.class
+com\app\billingapi\dto\SaleReportDto.class
 com\app\billingapi\repository\CustomerRepository.class
 com\app\billingapi\repository\ShopRepository.class
 com\app\billingapi\exception\UserBadCredential.class
@@ -106,6 +107,7 @@ com\app\billingapi\exception\UserIllegalArgumentException.class
 com\app\billingapi\repository\SaleItemRepository.class
 com\app\billingapi\service\CountryService.class
 com\app\billingapi\dto\InvoiceDto.class
+com\app\billingapi\dto\SalesReportResponse.class
 com\app\billingapi\controller\RoleController.class
 com\app\billingapi\exception\CustomerNotFoundException.class
 com\app\billingapi\dto\SigninUserDto.class
