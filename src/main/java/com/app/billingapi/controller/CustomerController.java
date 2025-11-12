@@ -28,8 +28,6 @@ public class CustomerController {
 
 	@PostMapping("/add")
 	public ResponseEntity<?> addCustomer(@RequestBody CustomerDto customerDto) {
-		
-		
 	
 		
 		if (customerService.existsByPhone(customerDto.getPhone())) {

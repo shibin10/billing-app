@@ -11,7 +11,11 @@ public class JwtUtils {
     private final String SECRET_KEY = "3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b";
 
     public Claims extractAllClaims(String token) {
-        return Jwts.parser()
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+    	return Jwts.parser()
                    .setSigningKey(SECRET_KEY)
                    .parseClaimsJws(token)
                    .getBody();
