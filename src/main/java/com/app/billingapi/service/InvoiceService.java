@@ -124,7 +124,7 @@ public class InvoiceService {
 			totalTax = totalTax.add(taxAmount);
 		}
 
-		BigDecimal finalAmount = totalAmount.subtract(roundOff);
+		BigDecimal finalAmount = totalAmount.subtract(roundOff).setScale(0, RoundingMode.HALF_UP);
 
 		savedSale.setTotalAmount(totalAmount);
 		savedSale.setFinalAmount(finalAmount);
@@ -174,14 +174,27 @@ public class InvoiceService {
 		return mapToInvoiceDto(savedInvoice);
 	}
 
-	public Page<InvoiceDto> findAllInvoices(int page, int size) {
+	public Page<InvoiceDto> findAllInvoices(int page, int size,String search) {
 		logger.info("Fetching all invoices");
 
 		 try {
-		        Pageable pageable = PageRequest.of(page, size, Sort.by("invoiceId").descending());
-		        Page<Invoice> invoicePage = invoiceRepository.findAll(pageable);
 
-		        return invoicePage.map(this::mapToInvoiceDto);
+			 Pageable pageable = PageRequest.of(page, size, Sort.by("invoiceId").descending());
+
+		        Page<Invoice> invoices;
+
+		        if (search == null || search.trim().isEmpty()) {
+		            invoices = invoiceRepository.findAll(pageable);
+		        } else {
+		            String keyword = search.trim();
+		            invoices = invoiceRepository
+		                    .findByInvoiceNoContainingIgnoreCaseOrCustomerId_NameContainingIgnoreCase(
+		                            keyword, keyword, pageable
+		                    );
+		        }
+
+		        return invoices.map(this::mapToInvoiceDto);
+
 		    } catch (Exception e) {
 		        logger.error("Error fetching invoices", e);
 		        throw new RuntimeException("Failed to fetch invoices", e);

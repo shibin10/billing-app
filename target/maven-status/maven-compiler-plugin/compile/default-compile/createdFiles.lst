@@ -10,12 +10,15 @@ com\app\billingapi\service\SubscriptionPlanService.class
 com\app\billingapi\service\FileStorageService.class
 com\app\billingapi\entity\Invoice.class
 com\app\billingapi\util\AuthUtil.class
+com\app\billingapi\entity\Purchase.class
 com\app\billingapi\repository\InvoiceRepository.class
+com\app\billingapi\entity\PurchaseItem.class
 com\app\billingapi\config\WebConfig$1.class
 com\app\billingapi\dto\SaleReportDto.class
 com\app\billingapi\repository\CustomerRepository.class
 com\app\billingapi\repository\ShopRepository.class
 com\app\billingapi\exception\UserBadCredential.class
+com\app\billingapi\dto\SupplierDto.class
 com\app\billingapi\dto\SubscriptionPlanDto.class
 com\app\billingapi\exception\InvoiceNotFoundException.class
 com\app\billingapi\service\SaleItemService.class
@@ -56,6 +59,7 @@ com\app\billingapi\service\ShopService.class
 com\app\billingapi\controller\UserController.class
 com\app\billingapi\exception\GlobalExceptionHandler.class
 com\app\billingapi\service\SalesReportService.class
+com\app\billingapi\dto\PurchaseItemDto.class
 com\app\billingapi\dto\DiscountSummaryDto.class
 com\app\billingapi\entity\Coupon.class
 com\app\billingapi\enums\PlanType.class
@@ -70,10 +74,12 @@ com\app\billingapi\entity\Shop.class
 com\app\billingapi\service\ReportService.class
 com\app\billingapi\controller\ReportController.class
 com\app\billingapi\service\ProductService.class
+com\app\billingapi\service\SupplierService.class
 com\app\billingapi\entity\Sale.class
 com\app\billingapi\repository\ProductRepository.class
 com\app\billingapi\config\JwtAuthenticationFilter.class
 com\app\billingapi\dto\CountryDto.class
+com\app\billingapi\repository\SupplierRepository.class
 com\app\billingapi\dto\RoleDto.class
 com\app\billingapi\dto\TimeInsightDto.class
 com\app\billingapi\service\CustomerService.class
@@ -94,6 +100,7 @@ com\app\billingapi\enums\CouponType.class
 com\app\billingapi\entity\Discount.class
 com\app\billingapi\dto\InventoryMovementDto.class
 com\app\billingapi\entity\ShopSubscription.class
+com\app\billingapi\controller\SupplierController.class
 com\app\billingapi\entity\SaleItem.class
 com\app\billingapi\repository\InvoiceItemRepository.class
 com\app\billingapi\repository\SubscriptionPlanRepository.class
@@ -111,6 +118,7 @@ com\app\billingapi\dto\SalesReportResponse.class
 com\app\billingapi\controller\RoleController.class
 com\app\billingapi\exception\CustomerNotFoundException.class
 com\app\billingapi\dto\SigninUserDto.class
+com\app\billingapi\dto\PurchaseDto.class
 com\app\billingapi\entity\Product.class
 com\app\billingapi\enums\BillType.class
 com\app\billingapi\exception\UserNotFoundException.class
@@ -118,6 +126,7 @@ com\app\billingapi\service\OTPService.class
 com\app\billingapi\dto\ForgotPasswordDto.class
 com\app\billingapi\enums\DiscountUnit.class
 com\app\billingapi\repository\SaleRepository.class
+com\app\billingapi\entity\Supplier.class
 com\app\billingapi\entity\PasswordResetToken.class
 com\app\billingapi\controller\InvoiceController.class
 com\app\billingapi\entity\SubscriptionPlan.class

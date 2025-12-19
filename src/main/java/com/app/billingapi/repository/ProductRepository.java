@@ -3,6 +3,8 @@ package com.app.billingapi.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.app.billingapi.entity.Product;
@@ -21,6 +23,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	
 	boolean existsByProductNumberIgnoreCaseAndShopId(String productNumber, Shop shopId);
 
-
+	 Page<Product> findByNameContainingIgnoreCaseOrProductNumberContainingIgnoreCaseOrHsn(
+	            String name,
+	            String productNumber,
+	            Long hsn,
+	            Pageable pageable
+	    );		
 
 }
