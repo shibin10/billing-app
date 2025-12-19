@@ -54,9 +54,10 @@ public class ProductController {
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllProduct(
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size)  {
+			@RequestParam(defaultValue = "10") int size, 
+			@RequestParam(defaultValue = "") String search) {
 		
-		Page<ProductDto> product = productService.findAllProducts(page, size);
+		Page<ProductDto> product = productService.findAllProducts(page, size, search);
 		
 		if (product.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Products Found");

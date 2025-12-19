@@ -44,9 +44,10 @@ public class InvoiceController {
 	@GetMapping("/all")
 	public ResponseEntity<?> getAllInvoices( 
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size) {
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "") String search) {
 		
-		 Page<InvoiceDto> invoices = invoiceService.findAllInvoices(page, size);
+		 Page<InvoiceDto> invoices = invoiceService.findAllInvoices(page, size, search);
 		
 		 if (invoices.isEmpty()) {
 			return ResponseEntity.notFound().build();

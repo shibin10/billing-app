@@ -79,15 +79,32 @@ public class ProductService {
 		return productRepository.existsByName(name);
 	}
 
-	public Page<ProductDto> findAllProducts(int page, int size) {
+	public Page<ProductDto> findAllProducts(int page, int size, String search) {
 
 		try {
 			Pageable pageable = PageRequest.of(page, size, Sort.by("productId").descending());
 
-			Page<Product> products = productRepository.findAll(pageable);
+			Page<Product> products;
+			
+			if (search == null || search.trim().isEmpty()) {
+				products = productRepository.findAll(pageable);
+			} else {
+
+				String keyword = search.trim();
+				 Long hsnNumber = null;
+
+			        try {
+			            hsnNumber = Long.parseLong(keyword); 
+			        } catch (NumberFormatException e) {
+			       
+			        }
+			        
+				products = productRepository.findByNameContainingIgnoreCaseOrProductNumberContainingIgnoreCaseOrHsn(
+						keyword, keyword, hsnNumber, pageable);
+			}
 
 			return products.map(this::mapToProductDto);
-		
+
 		} catch (Exception e) {
 			logger.error("Error fetching invoices", e);
 			throw new RuntimeException("Failed to fetch invoices", e);
